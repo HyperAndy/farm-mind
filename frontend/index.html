@@ -33,10 +33,7 @@
     }
 
     /* ========== PC布局容器 ========== */
-    .app-layout {
-      display: flex;
-      min-height: 100vh;
-    }
+    .app-layout { display: flex; min-height: 100vh; }
 
     /* ========== 侧边栏 (PC) ========== */
     .sidebar {
@@ -88,8 +85,8 @@
     /* ========== 主内容区 ========== */
     .main-content {
       flex: 1;
-      padding: var(--space-lg);
-      padding-bottom: calc(70px + env(safe-area-inset-bottom, 20px));
+      padding: var(--space-md);
+      padding-bottom: calc(80px + env(safe-area-inset-bottom, 20px));
     }
 
     @media (min-width: 1024px) {
@@ -147,39 +144,6 @@
       text-align: center;
     }
 
-    /* ========== 告警横幅 ========== */
-    .alert-banner {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 10px var(--space-md);
-      background: linear-gradient(90deg, var(--danger) 0%, #DC2626 100%);
-      color: white;
-      display: flex;
-      align-items: center;
-      gap: var(--space-sm);
-      z-index: 99;
-      transform: translateY(-100%);
-      transition: transform 0.3s ease;
-    }
-
-    .alert-banner.show { transform: translateY(0); }
-    .alert-banner-text { flex: 1; font-size: 13px; font-weight: 500; }
-    .alert-banner-close {
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(255,255,255,0.2);
-      border: none;
-      border-radius: 50%;
-      color: white;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
     /* ========== 页面标题 ========== */
     .page-header {
       display: flex;
@@ -188,27 +152,123 @@
       margin-bottom: var(--space-lg);
     }
 
-    .page-title {
-      font-size: 24px;
-      font-weight: 700;
+    .page-title { font-size: 20px; font-weight: 700; }
+    .page-subtitle { font-size: 14px; color: var(--text-light); margin-top: 4px; }
+
+    /* ========== 底部导航 ========== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-around;
+      background: white;
+      padding: 8px 0;
+      padding-bottom: env(safe-area-inset-bottom, 8px);
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+      z-index: 100;
     }
 
-    .page-subtitle {
-      font-size: 14px;
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 8px 16px;
       color: var(--text-light);
-      margin-top: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
     }
 
-    .page-actions { display: flex; gap: var(--space-sm); }
+    .nav-item i { font-size: 24px; }
+    .nav-item.active { color: var(--primary); }
 
-    /* ========== 大棚卡片网格 ========== */
-    .gh-grid {
-      display: grid;
-      gap: var(--space-md);
+    /* ========== 页面内容 ========== */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ========== 监控视图 - 数据密集型 ========== */
+    .monitor-hero {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: white;
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+      margin-bottom: var(--space-md);
     }
 
-    @media (min-width: 768px) { .gh-grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-lg); } }
-    @media (min-width: 1280px) { .gh-grid { grid-template-columns: repeat(3, 1fr); } }
+    .monitor-gh-name { font-size: 14px; opacity: 0.9; margin-bottom: var(--space-md); }
+
+    .monitor-metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-md); margin-bottom: var(--space-md); }
+
+    .monitor-metric {
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px;
+      padding: var(--space-md);
+      text-align: center;
+    }
+
+    .monitor-metric-value { font-size: 36px; font-weight: 700; display: flex; align-items: baseline; justify-content: center; gap: 4px; }
+    .monitor-metric-unit { font-size: 16px; opacity: 0.8; }
+    .monitor-metric-label { font-size: 13px; opacity: 0.9; margin-top: 4px; }
+
+    .monitor-status { display: flex; align-items: center; justify-content: space-between; }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      font-size: 12px;
+    }
+
+    .status-badge.warning { background: rgba(245,158,11,0.3); }
+    .status-badge.danger { background: rgba(229,62,62,0.4); }
+
+    .monitor-alerts {
+      display: flex;
+      gap: var(--space-sm);
+      overflow-x: auto;
+      padding-bottom: var(--space-sm);
+      margin-bottom: var(--space-md);
+    }
+
+    .monitor-alerts::-webkit-scrollbar { display: none; }
+
+    .alert-chip {
+      flex: 0 0 auto;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .alert-chip.urgent { background: #FEE2E2; color: var(--danger); }
+    .alert-chip.warning { background: #FEF3C7; color: #B45309; }
+    .alert-chip.reminder { background: #E8F5E9; color: var(--primary); }
+
+    .monitor-secondary { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-sm); }
+
+    .secondary-item {
+      background: rgba(255,255,255,0.15);
+      border-radius: 10px;
+      padding: 10px 8px;
+      text-align: center;
+    }
+
+    .secondary-item-value { font-size: 16px; font-weight: 700; }
+    .secondary-item-label { font-size: 10px; opacity: 0.8; margin-top: 2px; }
+
+    /* ========== 卡片视图 - 卡片式 ========== */
+    .card-grid { display: grid; gap: var(--space-md); }
+
+    @media (min-width: 768px) { .card-grid { grid-template-columns: repeat(2, 1fr); } }
 
     .gh-card {
       background: var(--bg-card);
@@ -217,26 +277,18 @@
       box-shadow: var(--shadow);
       cursor: pointer;
       transition: all 0.2s;
-      position: relative;
-      overflow: hidden;
     }
 
     .gh-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.12); }
 
-    .gh-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: var(--space-md);
-    }
-
-    .gh-card-title { font-size: 18px; font-weight: 600; }
+    .gh-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-md); }
+    .gh-card-title { font-size: 16px; font-weight: 600; }
     .gh-card-subtitle { font-size: 13px; color: var(--text-light); margin-top: 4px; }
 
     .gh-card-status {
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
       font-weight: 500;
     }
 
@@ -247,16 +299,15 @@
     .gh-card-metrics {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: var(--space-md);
+      gap: var(--space-sm);
       padding: var(--space-md);
       background: var(--bg);
       border-radius: 12px;
     }
 
     .gh-metric { text-align: center; }
-    .gh-metric-value { font-size: 24px; font-weight: 700; }
-    .gh-metric-label { font-size: 12px; color: var(--text-light); margin-top: 2px; }
-    .gh-metric-unit { font-size: 14px; opacity: 0.7; }
+    .gh-metric-value { font-size: 22px; font-weight: 700; }
+    .gh-metric-label { font-size: 11px; color: var(--text-light); margin-top: 2px; }
 
     .gh-card-footer {
       display: flex;
@@ -267,45 +318,52 @@
       border-top: 1px solid var(--border);
     }
 
-    .gh-card-info { font-size: 13px; color: var(--text-light); display: flex; gap: var(--space-md); }
-    .gh-card-link { color: var(--primary); font-size: 13px; display: flex; align-items: center; gap: 4px; }
+    .gh-card-location { font-size: 12px; color: var(--text-light); display: flex; align-items: center; gap: 4px; }
+    .gh-card-link { color: var(--primary); font-size: 12px; display: flex; align-items: center; gap: 2px; }
 
-    /* ========== 图表卡片 ========== */
-    .chart-card {
-      background: var(--bg-card);
-      border-radius: var(--radius);
-      padding: var(--space-lg);
+    /* ========== 控制视图 - 情景化 ========== */
+    .scenario-section { margin-bottom: var(--space-lg); }
+
+    .scenario-title {
+      font-size: 15px;
+      font-weight: 600;
       margin-bottom: var(--space-md);
-      box-shadow: var(--shadow);
     }
 
-    .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md); }
-    .chart-title { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: var(--space-sm); }
-    .chart-title i { color: var(--primary); }
+    .scenario-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-md); }
 
-    .chart-tabs { display: flex; gap: 6px; }
-    .chart-tab {
-      padding: 6px 12px;
-      border: none;
-      border-radius: 6px;
-      background: var(--bg);
-      font-size: 12px;
-      color: var(--text-light);
+    .scenario-card {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: var(--space-lg);
+      box-shadow: var(--shadow);
+      text-align: center;
       cursor: pointer;
-      white-space: nowrap;
+      transition: all 0.2s;
+      border: 2px solid transparent;
     }
-    .chart-tab.active { background: var(--primary); color: white; }
 
-    .chart-container { height: 280px; }
+    .scenario-card:active { transform: scale(0.98); }
+    .scenario-card.active { border-color: var(--primary); background: #F0FDF4; }
 
-    /* ========== 设备控制 ========== */
-    .device-card {
-      background: var(--bg-card);
-      border-radius: var(--radius);
-      padding: var(--space-lg);
-      margin-bottom: var(--space-md);
-      box-shadow: var(--shadow);
+    .scenario-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin: 0 auto var(--space-md);
     }
+
+    .scenario-icon.cooling { background: #DBEAFE; color: #2563EB; }
+    .scenario-icon.warming { background: #FEF3C7; color: #D97706; }
+    .scenario-icon.irrigation { background: #D1FAE5; color: #059669; }
+    .scenario-icon.light { background: #FEF9C3; color: #CA8A04; }
+
+    .scenario-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .scenario-desc { font-size: 12px; color: var(--text-light); }
 
     .device-list { display: flex; flex-direction: column; gap: var(--space-sm); }
 
@@ -314,9 +372,9 @@
       align-items: center;
       gap: var(--space-md);
       padding: 14px;
-      background: var(--bg);
+      background: var(--bg-card);
       border-radius: 12px;
-      min-height: 60px;
+      box-shadow: var(--shadow);
     }
 
     .device-icon {
@@ -363,86 +421,50 @@
     }
     .device-toggle.on::after { left: 24px; }
 
-    /* ========== AI 建议卡片 ========== */
-    .ai-suggestion-card {
-      background: #F0FDF4;
-      border-left: 4px solid var(--primary);
+    /* ========== 分析视图 - 图表型 ========== */
+    .chart-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+      margin-bottom: var(--space-md);
+      box-shadow: var(--shadow);
+    }
+
+    .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md); }
+    .chart-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: var(--space-sm); }
+    .chart-title i { color: var(--primary); }
+
+    .chart-tabs { display: flex; gap: 6px; }
+    .chart-tab {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      background: var(--bg);
+      font-size: 12px;
+      color: var(--text-light);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .chart-tab.active { background: var(--primary); color: white; }
+
+    .chart-container { height: 200px; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-md); margin-top: var(--space-md); }
+
+    @media (max-width: 480px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .stat-card {
+      background: var(--bg);
       border-radius: 12px;
       padding: var(--space-md);
-      margin-bottom: var(--space-md);
+      text-align: center;
     }
 
-    .ai-suggestion-header {
-      display: flex;
-      align-items: center;
-      gap: var(--space-sm);
-      font-weight: 600;
-      color: var(--primary);
-      margin-bottom: var(--space-sm);
-    }
-
-    .ai-suggestion-header i { font-size: 18px; }
-    .ai-confidence {
-      font-size: 11px;
-      background: rgba(45, 122, 79, 0.1);
-      padding: 2px 8px;
-      border-radius: 10px;
-      margin-left: auto;
-    }
-
-    .ai-suggestion-text { font-size: 14px; line-height: 1.5; color: var(--text); margin-bottom: var(--space-md); }
-
-    .ai-suggestion-actions { display: flex; gap: var(--space-sm); }
-
-    .ai-btn {
-      flex: 1;
-      padding: 12px;
-      border: none;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      min-height: 44px;
-    }
-
-    .ai-btn.accept { background: var(--primary); color: white; }
-    .ai-btn.reject { background: #E8F5E9; color: var(--primary); }
-    .ai-btn:active { opacity: 0.8; }
-
-    /* ========== 底部导航 ========== */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      display: flex;
-      justify-content: space-around;
-      background: white;
-      padding: 8px 0;
-      padding-bottom: env(safe-area-inset-bottom, 8px);
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
-      z-index: 100;
-    }
-
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      padding: 8px 16px;
-      color: var(--text-light);
-      text-decoration: none;
-      font-size: 11px;
-      cursor: pointer;
-    }
-
-    .nav-item i { font-size: 24px; }
-    .nav-item.active { color: var(--primary); }
-    .nav-item:active { opacity: 0.7; }
+    .stat-value { font-size: 22px; font-weight: 700; color: var(--primary); }
+    .stat-label { font-size: 11px; color: var(--text-light); margin-top: 4px; }
+    .stat-change { font-size: 11px; margin-top: 4px; }
+    .stat-change.up { color: var(--success); }
+    .stat-change.down { color: var(--danger); }
 
     /* ========== 弹窗 ========== */
     .modal-overlay {
@@ -470,12 +492,7 @@
       overflow-y: auto;
     }
 
-    .modal-header {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: var(--space-lg);
-      text-align: center;
-    }
+    .modal-header { font-size: 18px; font-weight: 600; margin-bottom: var(--space-lg); text-align: center; }
 
     .form-group { margin-bottom: var(--space-md); }
     .form-group label { display: block; font-size: 13px; color: var(--text-light); margin-bottom: 6px; }
@@ -522,57 +539,44 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-    }
-    .btn-primary { background: var(--primary); color: white; }
-
-    /* ========== 大棚详情页 ========== */
-    .detail-header {
-      display: flex;
-      align-items: center;
-      gap: var(--space-md);
-      margin-bottom: var(--space-lg);
+      background: var(--primary);
+      color: white;
     }
 
-    .back-btn {
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 20px;
-      cursor: pointer;
-      box-shadow: var(--shadow);
-    }
-
-    .detail-title { font-size: 20px; font-weight: 600; }
-
-    .detail-grid {
-      display: grid;
-      gap: var(--space-md);
-    }
-
-    @media (min-width: 768px) {
-      .detail-grid { grid-template-columns: 1fr 1fr; }
-      .detail-grid .chart-card, .detail-grid .device-card { margin-bottom: 0; }
-    }
-
-    /* ========== 辅助类 ========== */
     .text-danger { color: var(--danger); }
     .text-warning { color: var(--warning); }
-    .text-success { color: var(--success); }
+
+    /* ========== AI建议 ========== */
+    .ai-suggestion-card {
+      background: #F0FDF4;
+      border-left: 4px solid var(--primary);
+      border-radius: 12px;
+      padding: var(--space-md);
+      margin-bottom: var(--space-md);
+    }
+
+    .ai-suggestion-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: var(--space-sm);
+    }
+
+    .ai-suggestion-header i { font-size: 18px; }
+    .ai-confidence {
+      font-size: 11px;
+      background: rgba(45, 122, 79, 0.1);
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-left: auto;
+    }
+
+    .ai-suggestion-text { font-size: 14px; line-height: 1.5; color: var(--text); margin-bottom: var(--space-md); }
   </style>
 </head>
 <body>
-  <!-- 告警横幅 -->
-  <div class="alert-banner" id="alertBanner">
-    <i class="ri-error-warning-line" style="font-size:18px"></i>
-    <span class="alert-banner-text" id="alertBannerText">温度过高：32.5℃</span>
-    <button class="alert-banner-close" onclick="hideAlertBanner()"><i class="ri-close-line"></i></button>
-  </div>
-
   <!-- 移动端顶部导航 -->
   <div class="header">
     <div class="header-left">
@@ -593,124 +597,267 @@
       <span>FarmMind</span>
     </div>
     <div class="sidebar-nav">
-      <div class="sidebar-nav-item active" onclick="showPage('home')">
-        <i class="ri-home-4-fill"></i>
-        <span>首页</span>
+      <div class="sidebar-nav-item" onclick="switchTab('card')">
+        <i class="ri-function-line"></i>
+        <span>卡片视图</span>
       </div>
-      <div class="sidebar-nav-item" onclick="showPage('control')">
+      <div class="sidebar-nav-item active" onclick="switchTab('monitor')">
+        <i class="ri-dashboard-fill"></i>
+        <span>监控视图</span>
+      </div>
+      <div class="sidebar-nav-item" onclick="switchTab('control')">
         <i class="ri-settings-3-line"></i>
-        <span>设备控制</span>
+        <span>控制视图</span>
       </div>
-      <div class="sidebar-nav-item" onclick="showPage('alert')">
-        <i class="ri-error-warning-line"></i>
-        <span>告警中心</span>
-      </div>
-      <div class="sidebar-nav-item" onclick="showPage('profile')">
-        <i class="ri-user-line"></i>
-        <span>个人中心</span>
+      <div class="sidebar-nav-item" onclick="switchTab('analysis')">
+        <i class="ri-bar-chart-line"></i>
+        <span>分析视图</span>
       </div>
     </div>
     <div class="sidebar-footer">
-      <div class="sidebar-nav-item">
-        <i class="ri-settings-3-line"></i>
-        <span>系统设置</span>
+      <div class="sidebar-nav-item" onclick="showAddModal()">
+        <i class="ri-add-circle-line"></i>
+        <span>添加大棚</span>
       </div>
     </div>
   </div>
 
   <!-- 主内容 -->
-  <div class="main-content" id="mainContent">
-    <!-- 首页 - 大棚卡片列表 -->
-    <div id="homePage">
+  <div class="main-content">
+    <!-- ========== 监控视图 ========== -->
+    <div id="monitorPage" class="page active">
       <div class="page-header">
         <div>
-          <div class="page-title">我的大棚</div>
-          <div class="page-subtitle" id="totalSubtitle">共 0 个大棚</div>
-        </div>
-        <div class="page-actions">
-          <button class="btn btn-primary" onclick="showAddModal()">
-            <i class="ri-add-line"></i> 添加大棚
-          </button>
+          <div class="page-title">监控视图</div>
+          <div class="page-subtitle" id="monitorGhName">选择一个大棚</div>
         </div>
       </div>
-      <div id="ghGrid" class="gh-grid">
+
+      <div class="monitor-hero" id="monitorHero">
+        <div class="monitor-gh-name" id="monitorGhSubtitle">--</div>
+
+        <div class="monitor-metrics">
+          <div class="monitor-metric">
+            <div class="monitor-metric-value">
+              <span id="monitorTemp">--</span>
+              <span class="monitor-metric-unit">°C</span>
+            </div>
+            <div class="monitor-metric-label">温度</div>
+          </div>
+          <div class="monitor-metric">
+            <div class="monitor-metric-value">
+              <span id="monitorHumidity">--</span>
+              <span class="monitor-metric-unit">%</span>
+            </div>
+            <div class="monitor-metric-label">湿度</div>
+          </div>
+        </div>
+
+        <div class="monitor-status">
+          <div class="status-badge" id="monitorStatus">
+            <i class="ri-checkbox-circle-fill"></i>
+            <span>加载中...</span>
+          </div>
+          <div class="status-badge">
+            <i class="ri-time-line"></i>
+            <span id="monitorTime">--:--</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="monitor-alerts" id="monitorAlerts">
+        <div class="alert-chip reminder">
+          <i class="ri-information-line"></i> 选择大棚查看告警
+        </div>
+      </div>
+
+      <div class="monitor-secondary">
+        <div class="secondary-item">
+          <div class="secondary-item-value" id="monitorLight">--</div>
+          <div class="secondary-item-label">光照(lux)</div>
+        </div>
+        <div class="secondary-item">
+          <div class="secondary-item-value" id="monitorCO2">--</div>
+          <div class="secondary-item-label">CO2(ppm)</div>
+        </div>
+        <div class="secondary-item">
+          <div class="secondary-item-value" id="monitorSoilEC">--</div>
+          <div class="secondary-item-label">土壤EC</div>
+        </div>
+        <div class="secondary-item">
+          <div class="secondary-item-value" id="monitorSoilTemp">--</div>
+          <div class="secondary-item-label">土温(°C)</div>
+        </div>
+      </div>
+
+      <div class="monitor-quick-actions" style="display:flex;gap:var(--space-sm);margin-top:var(--space-md);">
+        <button class="btn" onclick="switchTab('control')" style="flex:1;justify-content:center;background:#DBEAFE;color:#2563EB;">
+          <i class="ri-settings-3-line"></i> 设备控制
+        </button>
+        <button class="btn" onclick="switchTab('analysis')" style="flex:1;justify-content:center;background:#FEF3C7;color:#D97706;">
+          <i class="ri-bar-chart-line"></i> 数据分析
+        </button>
+      </div>
+    </div>
+
+    <!-- ========== 卡片视图 ========== -->
+    <div id="cardPage" class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">卡片视图</div>
+          <div class="page-subtitle" id="cardSubtitle">共 0 个大棚</div>
+        </div>
+        <button class="btn" onclick="showAddModal()">
+          <i class="ri-add-line"></i> 添加
+        </button>
+      </div>
+      <div id="cardGrid" class="card-grid">
         <div class="loading"><i class="ri-loader-4-line"></i>加载中...</div>
       </div>
     </div>
 
-    <!-- 大棚详情页 -->
-    <div id="detailPage" style="display:none;">
-      <div class="detail-header">
-        <button class="back-btn" onclick="showHomePage()"><i class="ri-arrow-left-line"></i></button>
-        <div class="detail-title" id="detailTitle">番茄1号棚</div>
+    <!-- ========== 控制视图 ========== -->
+    <div id="controlPage" class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">控制视图</div>
+          <div class="page-subtitle">快捷情景 + 设备控制</div>
+        </div>
       </div>
 
-      <!-- AI 建议 -->
+      <div class="scenario-section">
+        <div class="scenario-title">快捷情景</div>
+        <div class="scenario-grid">
+          <div class="scenario-card" onclick="applyScenario('cooling', this)">
+            <div class="scenario-icon cooling"><i class="ri-snowy-line"></i></div>
+            <div class="scenario-name">降温模式</div>
+            <div class="scenario-desc">开启风机+遮阳</div>
+          </div>
+          <div class="scenario-card" onclick="applyScenario('warming', this)">
+            <div class="scenario-icon warming"><i class="ri-temp-hot-line"></i></div>
+            <div class="scenario-name">保温模式</div>
+            <div class="scenario-desc">关闭通风+补光</div>
+          </div>
+          <div class="scenario-card" onclick="applyScenario('irrigation', this)">
+            <div class="scenario-icon irrigation"><i class="ri-drop-line"></i></div>
+            <div class="scenario-name">灌溉模式</div>
+            <div class="scenario-desc">启动滴灌30分钟</div>
+          </div>
+          <div class="scenario-card" onclick="applyScenario('light', this)">
+            <div class="scenario-icon light"><i class="ri-lightbulb-line"></i></div>
+            <div class="scenario-name">补光模式</div>
+            <div class="scenario-desc">开启补光灯4小时</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="scenario-section">
+        <div class="scenario-title">设备控制</div>
+        <div class="device-list">
+          <div class="device-item">
+            <div class="device-icon fan"><i class="ri-tornado-line"></i></div>
+            <div class="device-info">
+              <div class="device-name">风机</div>
+              <div class="device-status">当前: 关闭</div>
+            </div>
+            <div class="device-toggle" onclick="toggleDevice(this, 'fan')"></div>
+          </div>
+          <div class="device-item">
+            <div class="device-icon curtain"><i class="ri-sun-cloudy-line"></i></div>
+            <div class="device-info">
+              <div class="device-name">遮阳帘</div>
+              <div class="device-status">开度: 30%</div>
+            </div>
+            <div class="device-toggle on" onclick="toggleDevice(this, 'curtain')"></div>
+          </div>
+          <div class="device-item">
+            <div class="device-icon light"><i class="ri-lightbulb-line"></i></div>
+            <div class="device-info">
+              <div class="device-name">补光灯</div>
+              <div class="device-status">当前: 关闭</div>
+            </div>
+            <div class="device-toggle" onclick="toggleDevice(this, 'light')"></div>
+          </div>
+          <div class="device-item">
+            <div class="device-icon irrigation"><i class="ri-drop-line"></i></div>
+            <div class="device-info">
+              <div class="device-name">滴灌</div>
+              <div class="device-status">下次: 14:00</div>
+            </div>
+            <div class="device-toggle" onclick="toggleDevice(this, 'irrigation')"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 分析视图 ========== -->
+    <div id="analysisPage" class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">分析视图</div>
+          <div class="page-subtitle">历史趋势 + 统计报表</div>
+        </div>
+      </div>
+
       <div class="ai-suggestion-card" id="aiSuggestionCard">
         <div class="ai-suggestion-header">
           <i class="ri-lightbulb-line"></i>
           <span>AI 智能建议</span>
           <span class="ai-confidence" id="aiConfidence">置信度 85%</span>
         </div>
-        <div class="ai-suggestion-text" id="aiSuggestionText">加载中...</div>
-        <div class="ai-suggestion-actions">
-          <button class="ai-btn accept" onclick="acceptSuggestion()"><i class="ri-check-line"></i> 采纳</button>
-          <button class="ai-btn reject" onclick="rejectSuggestion()"><i class="ri-close-line"></i> 忽略</button>
+        <div class="ai-suggestion-text" id="aiSuggestionText">选择大棚获取AI建议</div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title"><i class="ri-line-chart-line"></i> 历史趋势</div>
+          <div class="chart-tabs">
+            <button class="chart-tab active" onclick="switchChart('temp', this)">温度</button>
+            <button class="chart-tab" onclick="switchChart('humidity', this)">湿度</button>
+            <button class="chart-tab" onclick="switchChart('light', this)">光照</button>
+          </div>
+        </div>
+        <div class="chart-container" id="historyChart"></div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="statMax">--</div>
+            <div class="stat-label">今日最高</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statMin">--</div>
+            <div class="stat-label">今日最低</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statAvg">--</div>
+            <div class="stat-label">平均温度</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statHum">--</div>
+            <div class="stat-label">平均湿度</div>
+          </div>
         </div>
       </div>
 
-      <!-- 图表 -->
-      <div class="detail-grid">
-        <div class="chart-card">
-          <div class="chart-header">
-            <div class="chart-title"><i class="ri-line-chart-line"></i> 历史趋势</div>
-            <div class="chart-tabs">
-              <button class="chart-tab active" onclick="switchChart('temp', this)">温度</button>
-              <button class="chart-tab" onclick="switchChart('humidity', this)">湿度</button>
-              <button class="chart-tab" onclick="switchChart('light', this)">光照</button>
-            </div>
-          </div>
-          <div class="chart-container" id="historyChart"></div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title"><i class="ri-pie-chart-line"></i> 告警统计</div>
         </div>
-
-        <!-- 设备控制 -->
-        <div class="device-card">
-          <div class="chart-header">
-            <div class="chart-title"><i class="ri-settings-3-line"></i> 设备控制</div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" style="color: var(--danger)">0</div>
+            <div class="stat-label">紧急告警</div>
           </div>
-          <div class="device-list">
-            <div class="device-item">
-              <div class="device-icon fan"><i class="ri-tornado-line"></i></div>
-              <div class="device-info">
-                <div class="device-name">风机</div>
-                <div class="device-status">当前: 关闭</div>
-              </div>
-              <div class="device-toggle" onclick="toggleDevice(this, 'fan')"></div>
-            </div>
-            <div class="device-item">
-              <div class="device-icon curtain"><i class="ri-sun-cloudy-line"></i></div>
-              <div class="device-info">
-                <div class="device-name">遮阳帘</div>
-                <div class="device-status">开度: 30%</div>
-              </div>
-              <div class="device-toggle on" onclick="toggleDevice(this, 'curtain')"></div>
-            </div>
-            <div class="device-item">
-              <div class="device-icon light"><i class="ri-lightbulb-line"></i></div>
-              <div class="device-info">
-                <div class="device-name">补光灯</div>
-                <div class="device-status">当前: 关闭</div>
-              </div>
-              <div class="device-toggle" onclick="toggleDevice(this, 'light')"></div>
-            </div>
-            <div class="device-item">
-              <div class="device-icon irrigation"><i class="ri-drop-line"></i></div>
-              <div class="device-info">
-                <div class="device-name">滴灌</div>
-                <div class="device-status">下次: 14:00</div>
-              </div>
-              <div class="device-toggle" onclick="toggleDevice(this, 'irrigation')"></div>
-            </div>
+          <div class="stat-card">
+            <div class="stat-value" style="color: var(--warning)">0</div>
+            <div class="stat-label">警告</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" style="color: var(--success)">0</div>
+            <div class="stat-label">已解决</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">--</div>
+            <div class="stat-label">解决率</div>
           </div>
         </div>
       </div>
@@ -719,21 +866,21 @@
 
   <!-- 底部导航 -->
   <div class="bottom-nav">
-    <div class="nav-item active" onclick="showPage('home')">
-      <i class="ri-home-4-fill"></i>
-      <span>首页</span>
+    <div class="nav-item" onclick="switchTab('card')">
+      <i class="ri-function-line"></i>
+      <span>卡片</span>
     </div>
-    <div class="nav-item" onclick="showPage('control')">
+    <div class="nav-item active" onclick="switchTab('monitor')">
+      <i class="ri-dashboard-fill"></i>
+      <span>监控</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('control')">
       <i class="ri-settings-3-line"></i>
       <span>控制</span>
     </div>
-    <div class="nav-item" onclick="showPage('alert')">
-      <i class="ri-error-warning-line"></i>
-      <span>告警</span>
-    </div>
-    <div class="nav-item" onclick="showPage('profile')">
-      <i class="ri-user-line"></i>
-      <span>我的</span>
+    <div class="nav-item" onclick="switchTab('analysis')">
+      <i class="ri-bar-chart-line"></i>
+      <span>分析</span>
     </div>
   </div>
 
@@ -751,9 +898,9 @@
           <select id="ghCrop">
             <option value="tomato">番茄</option>
             <option value="strawberry">草莓</option>
+            <option value="cucumber">黄瓜</option>
+            <option value="pepper">辣椒</option>
             <option value="mushroom">菌菇</option>
-            <option value="flower">花卉</option>
-            <option value="vegetable">蔬菜</option>
           </select>
         </div>
         <div class="form-group">
@@ -784,19 +931,53 @@
       initChart();
     });
 
+    // Tab切换
+    function switchTab(tab) {
+      // 更新底部导航
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => {
+        if (n.onclick.toString().includes("'" + tab + "'")) n.classList.add('active');
+      });
+
+      // 更新侧边栏
+      document.querySelectorAll('.sidebar-nav-item').forEach(n => n.classList.remove('active'));
+      document.querySelectorAll('.sidebar-nav-item').forEach(n => {
+        if (n.onclick.toString().includes("'" + tab + "'")) n.classList.add('active');
+      });
+
+      // 更新页面
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(tab + 'Page').classList.add('active');
+
+      // 更新图表
+      if (tab === 'analysis' && historyChart) {
+        setTimeout(() => historyChart.resize(), 100);
+      }
+
+      // 加载数据
+      if (tab === 'card') {
+        renderCardGrid();
+      } else if (currentGhId) {
+        loadGhData(currentGhId);
+      }
+    }
+
     // 加载大棚列表
     async function loadGreenhouses() {
       try {
         const res = await fetch(`${API_BASE}/greenhouses`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         greenhouses = await res.json();
-        renderGhGrid();
+        renderCardGrid();
+        if (greenhouses.length > 0) {
+          selectGh(greenhouses[0].id);
+        }
       } catch (err) {
-        document.getElementById('ghGrid').innerHTML = `
+        document.getElementById('cardGrid').innerHTML = `
           <div class="empty">
             <div class="empty-icon"><i class="ri-cloud-off-line"></i></div>
             <div class="empty-text">无法连接服务</div>
-            <button class="btn btn-primary" onclick="loadGreenhouses()">
+            <button class="btn" onclick="loadGreenhouses()">
               <i class="ri-refresh-line"></i> 重试
             </button>
           </div>
@@ -804,17 +985,17 @@
       }
     }
 
-    // 渲染大棚卡片网格
-    function renderGhGrid() {
-      const grid = document.getElementById('ghGrid');
-      document.getElementById('totalSubtitle').textContent = `共 ${greenhouses.length} 个大棚`;
+    // 渲染卡片网格
+    function renderCardGrid() {
+      const grid = document.getElementById('cardGrid');
+      document.getElementById('cardSubtitle').textContent = `共 ${greenhouses.length} 个大棚`;
 
       if (greenhouses.length === 0) {
         grid.innerHTML = `
           <div class="empty">
             <div class="empty-icon"><i class="ri-home-line"></i></div>
             <div class="empty-text">暂无大棚，点击添加</div>
-            <button class="btn btn-primary" onclick="showAddModal()">
+            <button class="btn" onclick="showAddModal()">
               <i class="ri-add-line"></i> 添加大棚
             </button>
           </div>
@@ -825,7 +1006,7 @@
       grid.innerHTML = greenhouses.map(gh => {
         const cropName = getCropName(gh.crop_type);
         return `
-          <div class="gh-card" onclick="showDetailPage('${gh.id}')">
+          <div class="gh-card" onclick="selectGh('${gh.id}')">
             <div class="gh-card-header">
               <div>
                 <div class="gh-card-title">${gh.name}</div>
@@ -844,11 +1025,11 @@
               </div>
             </div>
             <div class="gh-card-footer">
-              <div class="gh-card-info">
-                <span><i class="ri-map-pin-line"></i> ${gh.location}</span>
+              <div class="gh-card-location">
+                <i class="ri-map-pin-line"></i> ${gh.location}
               </div>
               <div class="gh-card-link">
-                查看详情 <i class="ri-arrow-right-s-line"></i>
+                查看 <i class="ri-arrow-right-s-line"></i>
               </div>
             </div>
           </div>
@@ -856,71 +1037,104 @@
       }).join('');
 
       // 加载各棚数据
-      greenhouses.forEach(gh => loadGhCardData(gh.id));
+      greenhouses.forEach(gh => loadCardData(gh.id));
     }
 
     // 加载卡片数据
-    async function loadGhCardData(ghId) {
+    async function loadCardData(ghId) {
       try {
         const res = await fetch(`${API_BASE}/greenhouses/${ghId}/env/current`);
         const env = await res.json();
         const suffix = ghId.replace(/-/g, '');
-        document.getElementById(`temp_${suffix}`).textContent = env.temperature.toFixed(1);
-        document.getElementById(`hum_${suffix}`).textContent = env.humidity.toFixed(0);
+        const tempEl = document.getElementById(`temp_${suffix}`);
+        const humEl = document.getElementById(`hum_${suffix}`);
+        if (tempEl) tempEl.textContent = env.temperature.toFixed(1);
+        if (humEl) humEl.textContent = env.humidity.toFixed(0);
       } catch (e) { /* ignore */ }
     }
 
-    // 显示首页
-    function showHomePage() {
-      document.getElementById('homePage').style.display = 'block';
-      document.getElementById('detailPage').style.display = 'none';
+    // 选择大棚
+    function selectGh(ghId) {
+      currentGhId = ghId;
+      loadGhData(ghId);
+      // 自动切换到监控视图
+      switchTab('monitor');
     }
 
-    // 显示详情页
-    async function showDetailPage(ghId) {
-      currentGhId = ghId;
+    // 加载大棚数据
+    async function loadGhData(ghId) {
       const gh = greenhouses.find(g => g.id === ghId);
       if (!gh) return;
 
-      document.getElementById('homePage').style.display = 'none';
-      document.getElementById('detailPage').style.display = 'block';
-      document.getElementById('detailTitle').textContent = gh.name;
+      const cropName = getCropName(gh.crop_type);
 
-      await loadDetailData(ghId);
-    }
+      // 更新监控视图
+      document.getElementById('monitorGhName').textContent = gh.name;
+      document.getElementById('monitorGhSubtitle').textContent = `${cropName} · ${gh.area}亩 · ${gh.location}`;
 
-    // 加载详情数据
-    async function loadDetailData(ghId) {
+      // 更新AI建议
+      document.getElementById('aiSuggestionText').textContent = '加载中...';
+
       try {
+        // 获取环境数据
+        const envRes = await fetch(`${API_BASE}/greenhouses/${ghId}/env/current`);
+        const env = await envRes.json();
+        updateMonitorView(env);
+
         // 获取AI分析
         const analyzeRes = await fetch(`${API_BASE}/greenhouses/${ghId}/analyze`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' }
         });
 
-        if (!analyzeRes.ok) {
-          const text = await analyzeRes.text();
-          console.error('Analyze error:', text);
-          throw new Error(`Analyze failed: ${analyzeRes.status}`);
+        if (analyzeRes.ok) {
+          const analyze = await analyzeRes.json();
+          if (analyze.suggestion) {
+            document.getElementById('aiSuggestionText').textContent = analyze.suggestion.suggestion;
+            document.getElementById('aiConfidence').textContent = `置信度 ${(analyze.suggestion.confidence * 100).toFixed(0)}%`;
+          }
         }
-
-        const analyze = await analyzeRes.json();
-        updateSuggestion(analyze);
-        updateChart();
       } catch (err) {
-        console.error('Load detail failed:', err);
-        document.getElementById('aiSuggestionText').textContent = '数据加载失败，请重试';
+        console.error('Load data failed:', err);
+        document.getElementById('aiSuggestionText').textContent = '数据加载失败';
       }
     }
 
-    // 更新建议
-    function updateSuggestion(data) {
-      if (data.suggestion) {
-        document.getElementById('aiSuggestionText').textContent = data.suggestion.suggestion;
-        document.getElementById('aiConfidence').textContent = `置信度 ${(data.suggestion.confidence * 100).toFixed(0)}%`;
-      } else if (data.analysis) {
-        document.getElementById('aiSuggestionText').textContent = data.analysis;
+    // 更新监控视图
+    function updateMonitorView(env) {
+      document.getElementById('monitorTemp').textContent = env.temperature.toFixed(1);
+      document.getElementById('monitorHumidity').textContent = env.humidity.toFixed(0);
+      document.getElementById('monitorLight').textContent = (env.light / 1000).toFixed(1) + 'K';
+      document.getElementById('monitorCO2').textContent = env.co2;
+      document.getElementById('monitorSoilEC').textContent = env.soil_ec?.toFixed(1) || '--';
+      document.getElementById('monitorSoilTemp').textContent = env.soil_temp?.toFixed(1) || '--';
+      document.getElementById('monitorTime').textContent = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+
+      // 更新状态
+      const statusBadge = document.getElementById('monitorStatus');
+      const optimal = { temp_min: 18, temp_max: 28, humidity_min: 50, humidity_max: 80 };
+      if (env.temperature > optimal.temp_max + 3) {
+        statusBadge.className = 'status-badge danger';
+        statusBadge.innerHTML = '<i class="ri-error-warning-fill"></i><span>温度紧急</span>';
+      } else if (env.temperature > optimal.temp_max) {
+        statusBadge.className = 'status-badge warning';
+        statusBadge.innerHTML = '<i class="ri-error-warning-line"></i><span>温度偏高</span>';
+      } else if (env.temperature < optimal.temp_min - 3) {
+        statusBadge.className = 'status-badge danger';
+        statusBadge.innerHTML = '<i class="ri-error-warning-fill"></i><span>温度紧急</span>';
+      } else if (env.temperature < optimal.temp_min) {
+        statusBadge.className = 'status-badge warning';
+        statusBadge.innerHTML = '<i class="ri-error-warning-line"></i><span>温度偏低</span>';
+      } else {
+        statusBadge.className = 'status-badge';
+        statusBadge.innerHTML = '<i class="ri-checkbox-circle-fill"></i><span>环境正常</span>';
       }
+
+      // 更新统计
+      document.getElementById('statMax').textContent = (env.temperature + 3).toFixed(1) + '°';
+      document.getElementById('statMin').textContent = (env.temperature - 5).toFixed(1) + '°';
+      document.getElementById('statAvg').textContent = env.temperature.toFixed(1) + '°';
+      document.getElementById('statHum').textContent = env.humidity.toFixed(0) + '%';
     }
 
     // 初始化图表
@@ -929,6 +1143,7 @@
       if (!chartDom) return;
       historyChart = echarts.init(chartDom);
       window.addEventListener('resize', () => historyChart?.resize());
+      updateChart();
     }
 
     // 更新图表
@@ -936,18 +1151,22 @@
       if (!historyChart) return;
       const now = new Date();
       const times = [];
-      const data = [];
+      const tempData = [];
+      const humidityData = [];
+      const lightData = [];
 
       for (let i = 23; i >= 0; i--) {
         const t = new Date(now - i * 3600000);
         times.push(t.toLocaleTimeString('zh-CN', { hour: '2-digit' }));
-        data.push((20 + Math.random() * 8).toFixed(1));
+        tempData.push((22 + Math.random() * 8).toFixed(1));
+        humidityData.push((65 + Math.random() * 20).toFixed(0));
+        lightData.push((25 + Math.random() * 15).toFixed(1));
       }
 
       const configs = {
-        temp: { name: '温度 (°C)', color: '#E53E3E' },
-        humidity: { name: '湿度 (%)', color: '#3182CE' },
-        light: { name: '光照 (klux)', color: '#F59E0B' }
+        temp: { name: '温度 (°C)', color: '#E53E3E', data: tempData },
+        humidity: { name: '湿度 (%)', color: '#3182CE', data: humidityData },
+        light: { name: '光照 (klux)', color: '#F59E0B', data: lightData }
       };
 
       const config = configs[currentChartType];
@@ -958,7 +1177,7 @@
         yAxis: { type: 'value', axisLine: { show: false }, splitLine: { lineStyle: { color: '#F0F2F0' } }, axisLabel: { color: '#6B7B6B' } },
         series: [{
           name: config.name, type: 'line', smooth: true, symbol: 'none',
-          data: data,
+          data: config.data,
           itemStyle: { color: config.color },
           areaStyle: { color: config.color, opacity: 0.1 }
         }],
@@ -981,14 +1200,12 @@
       console.log(`${type} ${status}`);
     }
 
-    // 页面导航
-    function showPage(page) {
-      document.querySelectorAll('.nav-item, .sidebar-nav-item').forEach(n => n.classList.remove('active'));
-      event.currentTarget?.classList.add('active');
-
-      if (page === 'home') {
-        showHomePage();
-      }
+    // 情景模式
+    function applyScenario(scenario, el) {
+      document.querySelectorAll('.scenario-card').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      console.log(`Apply scenario: ${scenario}`);
+      // 实际应用中会根据scenario控制设备
     }
 
     // 弹窗
@@ -1024,7 +1241,6 @@
         hideAddModal();
         loadGreenhouses();
 
-        // 清空表单
         document.getElementById('ghName').value = '';
         document.getElementById('ghArea').value = '';
         document.getElementById('ghLocation').value = '';
@@ -1033,23 +1249,9 @@
       }
     }
 
-    // 建议操作
-    function acceptSuggestion() {
-      alert('建议已采纳');
-    }
-
-    function rejectSuggestion() {
-      alert('已忽略');
-    }
-
-    // 告警横幅
-    function hideAlertBanner() {
-      document.getElementById('alertBanner').classList.remove('show');
-    }
-
     // 辅助函数
     function getCropName(type) {
-      const names = { tomato: '番茄', strawberry: '草莓', mushroom: '菌菇', flower: '花卉', vegetable: '蔬菜' };
+      const names = { tomato: '番茄', strawberry: '草莓', cucumber: '黄瓜', pepper: '辣椒', mushroom: '菌菇', flower: '花卉', vegetable: '蔬菜' };
       return names[type] || type;
     }
   </script>

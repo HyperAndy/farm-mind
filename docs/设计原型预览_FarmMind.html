@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>FarmMind - 设计原型预览</title>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html { font-size: 14px; }
+    body { font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif; background: #F5F7F4; color: #2C3E28; min-height: 100vh; padding-bottom: 80px; }
+
+    :root {
+      --primary: #2D7A4F;
+      --primary-light: #4A9D6E;
+      --primary-dark: #1F5535;
+      --bg: #F5F7F4;
+      --bg-card: #FFFFFF;
+      --text: #2C3E28;
+      --text-light: #6B7B6B;
+      --border: #E2E8E0;
+      --success: #48BB78;
+      --warning: #F59E0B;
+      --danger: #E53E3E;
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      --radius: 16px;
+      --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+
+    /* ========== 顶部导航 ========== */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--primary);
+      color: white;
+      padding: 12px var(--space-md);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-left { display: flex; align-items: center; gap: var(--space-sm); }
+    .header-logo { font-size: 20px; }
+    .header-title { font-size: 16px; font-weight: 600; }
+
+    .header-right { display: flex; gap: var(--space-md); align-items: center; }
+
+    .header-icon-btn {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.15);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      background: var(--danger);
+      color: white;
+      font-size: 10px;
+      padding: 2px 5px;
+      border-radius: 10px;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    /* ========== 主内容区 ========== */
+    .container { padding: var(--space-md); }
+
+    /* ========== 视图标题 ========== */
+    .view-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: var(--space-lg);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .view-title i { color: var(--primary); }
+
+    /* ========== 底部导航 ========== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-around;
+      background: white;
+      padding: 8px 0;
+      padding-bottom: env(safe-area-inset-bottom, 8px);
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+      z-index: 100;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 8px 16px;
+      color: var(--text-light);
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav-item i { font-size: 24px; }
+    .nav-item.active { color: var(--primary); }
+    .nav-item:active { opacity: 0.7; }
+
+    /* ========== 页面内容 ========== */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ========== 监控视图 - 数据密集型 ========== */
+    .monitor-hero {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: white;
+      border-radius: 20px;
+      padding: var(--space-lg);
+      margin-bottom: var(--space-md);
+    }
+
+    .monitor-gh-name { font-size: 16px; font-weight: 600; margin-bottom: var(--space-md); }
+
+    .monitor-metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
+    }
+
+    .monitor-metric {
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px;
+      padding: var(--space-md);
+      text-align: center;
+    }
+
+    .monitor-metric-value {
+      font-size: 36px;
+      font-weight: 700;
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .monitor-metric-unit { font-size: 16px; opacity: 0.8; }
+    .monitor-metric-label { font-size: 13px; opacity: 0.9; margin-top: 4px; }
+
+    .monitor-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      font-size: 12px;
+    }
+
+    .status-badge.warning { background: rgba(245,158,11,0.3); }
+    .status-badge.danger { background: rgba(229,62,62,0.4); }
+
+    .monitor-alerts {
+      display: flex;
+      gap: var(--space-sm);
+      overflow-x: auto;
+      padding-bottom: var(--space-sm);
+      margin-bottom: var(--space-md);
+    }
+
+    .alert-chip {
+      flex: 0 0 auto;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .alert-chip.urgent { background: #FEE2E2; color: var(--danger); }
+    .alert-chip.warning { background: #FEF3C7; color: #B45309; }
+    .alert-chip.reminder { background: #E8F5E9; color: var(--primary); }
+
+    .monitor-secondary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-sm);
+    }
+
+    .secondary-item {
+      background: rgba(255,255,255,0.15);
+      border-radius: 10px;
+      padding: 10px 8px;
+      text-align: center;
+    }
+
+    .secondary-item-value { font-size: 18px; font-weight: 700; }
+    .secondary-item-label { font-size: 10px; opacity: 0.8; margin-top: 2px; }
+
+    /* ========== 卡片视图 - 卡片式 ========== */
+    .card-grid {
+      display: grid;
+      gap: var(--space-md);
+    }
+
+    @media (min-width: 768px) {
+      .card-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .gh-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .gh-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.12); }
+
+    .gh-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: var(--space-md);
+    }
+
+    .gh-card-title { font-size: 16px; font-weight: 600; }
+    .gh-card-subtitle { font-size: 13px; color: var(--text-light); margin-top: 4px; }
+
+    .gh-card-status {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .gh-card-status.normal { background: #E8F5E9; color: var(--primary); }
+    .gh-card-status.warning { background: #FEF3C7; color: #B45309; }
+    .gh-card-status.danger { background: #FEE2E2; color: var(--danger); }
+
+    .gh-card-metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-sm);
+      padding: var(--space-md);
+      background: var(--bg);
+      border-radius: 12px;
+    }
+
+    .gh-metric { text-align: center; }
+    .gh-metric-value { font-size: 22px; font-weight: 700; }
+    .gh-metric-label { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+
+    .gh-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: var(--space-md);
+      padding-top: var(--space-md);
+      border-top: 1px solid var(--border);
+    }
+
+    .gh-card-location { font-size: 12px; color: var(--text-light); display: flex; align-items: center; gap: 4px; }
+    .gh-card-link { color: var(--primary); font-size: 12px; display: flex; align-items: center; gap: 2px; }
+
+    /* ========== 控制视图 - 情景化 ========== */
+    .scenario-section { margin-bottom: var(--space-lg); }
+
+    .scenario-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: var(--space-md);
+      color: var(--text);
+    }
+
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-md);
+    }
+
+    .scenario-card {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: var(--space-lg);
+      box-shadow: var(--shadow);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+    }
+
+    .scenario-card:active { transform: scale(0.98); }
+    .scenario-card.active { border-color: var(--primary); background: #F0FDF4; }
+
+    .scenario-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin: 0 auto var(--space-md);
+    }
+
+    .scenario-icon.cooling { background: #DBEAFE; color: #2563EB; }
+    .scenario-icon.warming { background: #FEF3C7; color: #D97706; }
+    .scenario-icon.irrigation { background: #D1FAE5; color: #059669; }
+    .scenario-icon.light { background: #FEF9C3; color: #CA8A04; }
+
+    .scenario-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .scenario-desc { font-size: 12px; color: var(--text-light); }
+
+    .device-list { display: flex; flex-direction: column; gap: var(--space-sm); }
+
+    .device-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: 14px;
+      background: var(--bg-card);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .device-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+
+    .device-icon.fan { background: #DBEAFE; }
+    .device-icon.curtain { background: #FEF3C7; }
+    .device-icon.light { background: #FEF9C3; }
+    .device-icon.irrigation { background: #D1FAE5; }
+
+    .device-info { flex: 1; }
+    .device-name { font-size: 14px; font-weight: 600; }
+    .device-status { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+
+    .device-toggle {
+      width: 52px;
+      height: 30px;
+      border-radius: 15px;
+      background: var(--border);
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .device-toggle.on { background: var(--primary); }
+    .device-toggle::after {
+      content: '';
+      position: absolute;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: white;
+      top: 2px;
+      left: 2px;
+      transition: left 0.2s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .device-toggle.on::after { left: 24px; }
+
+    /* ========== 分析视图 - 图表型 ========== */
+    .chart-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+      margin-bottom: var(--space-md);
+      box-shadow: var(--shadow);
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-md);
+    }
+
+    .chart-title {
+      font-size: 15px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .chart-title i { color: var(--primary); }
+
+    .chart-tabs { display: flex; gap: 6px; }
+    .chart-tab {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      background: var(--bg);
+      font-size: 12px;
+      color: var(--text-light);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .chart-tab.active { background: var(--primary); color: white; }
+
+    .chart-container { height: 200px; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-md);
+      margin-top: var(--space-md);
+    }
+
+    .stat-card {
+      background: var(--bg);
+      border-radius: 12px;
+      padding: var(--space-md);
+      text-align: center;
+    }
+
+    .stat-value { font-size: 24px; font-weight: 700; color: var(--primary); }
+    .stat-label { font-size: 12px; color: var(--text-light); margin-top: 4px; }
+    .stat-change { font-size: 11px; margin-top: 4px; }
+    .stat-change.up { color: var(--success); }
+    .stat-change.down { color: var(--danger); }
+
+    /* ========== 空状态 ========== */
+    .empty {
+      text-align: center;
+      padding: 60px var(--space-md);
+      color: var(--text-light);
+    }
+
+    .empty-icon { font-size: 64px; margin-bottom: var(--space-md); opacity: 0.5; }
+    .empty-text { font-size: 16px; margin-bottom: var(--space-lg); }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--primary);
+      color: white;
+    }
+
+    /* ========== 说明面板 ========== */
+    .info-panel {
+      background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+      color: white;
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+      margin-bottom: var(--space-lg);
+    }
+
+    .info-panel h3 { font-size: 16px; margin-bottom: var(--space-md); }
+
+    .info-panel ul {
+      list-style: none;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .info-panel li { display: flex; align-items: center; gap: var(--space-sm); }
+    .info-panel li::before { content: '→'; opacity: 0.7; }
+
+    .info-panel code {
+      background: rgba(255,255,255,0.2);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    /* ========== 设计说明 ========== */
+    .design-notes {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+      margin-bottom: var(--space-md);
+      box-shadow: var(--shadow);
+    }
+
+    .design-notes h4 {
+      font-size: 14px;
+      color: var(--primary);
+      margin-bottom: var(--space-sm);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .design-notes p {
+      font-size: 13px;
+      color: var(--text-light);
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航 -->
+  <div class="header">
+    <div class="header-left">
+      <i class="ri-leaf-line header-logo"></i>
+      <span class="header-title">FarmMind</span>
+    </div>
+    <div class="header-right">
+      <button class="header-icon-btn">
+        <i class="ri-notification-3-line"></i>
+        <span class="notification-badge">3</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 主内容 -->
+  <div class="container">
+    <!-- 设计说明 -->
+    <div class="design-notes">
+      <h4><i class="ri-information-line"></i> 当前预览：监控视图</h4>
+      <p>底部Tab切换4种视图模式：监控(数据密集型)、卡片(卡片式)、控制(情景化)、分析(图表型)</p>
+    </div>
+
+    <!-- 监控视图 - 数据密集型 -->
+    <div id="monitorPage" class="page active">
+      <div class="view-title"><i class="ri-dashboard-line"></i> 监控视图</div>
+
+      <div class="monitor-hero">
+        <div class="monitor-gh-name">番茄1号棚 · 5亩</div>
+
+        <div class="monitor-metrics">
+          <div class="monitor-metric">
+            <div class="monitor-metric-value">
+              28.5<span class="monitor-metric-unit">°C</span>
+            </div>
+            <div class="monitor-metric-label">温度</div>
+          </div>
+          <div class="monitor-metric">
+            <div class="monitor-metric-value">
+              75<span class="monitor-metric-unit">%</span>
+            </div>
+            <div class="monitor-metric-label">湿度</div>
+          </div>
+        </div>
+
+        <div class="monitor-status">
+          <div class="status-badge warning">
+            <i class="ri-error-warning-fill"></i>
+            温度偏高
+          </div>
+          <div class="status-badge">
+            <i class="ri-time-line"></i>
+            更新于 14:32
+          </div>
+        </div>
+      </div>
+
+      <div class="monitor-alerts">
+        <div class="alert-chip urgent">
+          <i class="ri-error-warning-fill"></i> 温度紧急告警
+        </div>
+        <div class="alert-chip warning">
+          <i class="ri-alert-line"></i> 湿度偏高警告
+        </div>
+        <div class="alert-chip reminder">
+          <i class="ri-information-line"></i> 光照不足提醒
+        </div>
+      </div>
+
+      <div class="monitor-secondary">
+        <div class="secondary-item">
+          <div class="secondary-item-value">32.5K</div>
+          <div class="secondary-item-label">光照</div>
+        </div>
+        <div class="secondary-item">
+          <div class="secondary-item-value">850</div>
+          <div class="secondary-item-label">CO2</div>
+        </div>
+        <div class="secondary-item">
+          <div class="secondary-item-value">1.8</div>
+          <div class="secondary-item-label">土壤EC</div>
+        </div>
+        <div class="secondary-item">
+          <div class="secondary-item-value">24.2</div>
+          <div class="secondary-item-label">土温</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 卡片视图 - 卡片式 -->
+    <div id="cardPage" class="page">
+      <div class="view-title"><i class="ri-function-line"></i> 卡片视图</div>
+
+      <div class="card-grid">
+        <div class="gh-card">
+          <div class="gh-card-header">
+            <div>
+              <div class="gh-card-title">番茄1号棚</div>
+              <div class="gh-card-subtitle">番茄 · 5亩</div>
+            </div>
+            <div class="gh-card-status warning">告警</div>
+          </div>
+          <div class="gh-card-metrics">
+            <div class="gh-metric">
+              <div class="gh-metric-value text-danger">28.5°</div>
+              <div class="gh-metric-label">温度</div>
+            </div>
+            <div class="gh-metric">
+              <div class="gh-metric-value">75%</div>
+              <div class="gh-metric-label">湿度</div>
+            </div>
+          </div>
+          <div class="gh-card-footer">
+            <div class="gh-card-location">
+              <i class="ri-map-pin-line"></i> 山东寿光
+            </div>
+            <div class="gh-card-link">
+              查看详情 <i class="ri-arrow-right-s-line"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="gh-card">
+          <div class="gh-card-header">
+            <div>
+              <div class="gh-card-title">草莓2号棚</div>
+              <div class="gh-card-subtitle">草莓 · 3亩</div>
+            </div>
+            <div class="gh-card-status normal">正常</div>
+          </div>
+          <div class="gh-card-metrics">
+            <div class="gh-metric">
+              <div class="gh-metric-value">22.1°</div>
+              <div class="gh-metric-label">温度</div>
+            </div>
+            <div class="gh-metric">
+              <div class="gh-metric-value">68%</div>
+              <div class="gh-metric-label">湿度</div>
+            </div>
+          </div>
+          <div class="gh-card-footer">
+            <div class="gh-card-location">
+              <i class="ri-map-pin-line"></i> 北京顺义
+            </div>
+            <div class="gh-card-link">
+              查看详情 <i class="ri-arrow-right-s-line"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="gh-card">
+          <div class="gh-card-header">
+            <div>
+              <div class="gh-card-title">黄瓜3号棚</div>
+              <div class="gh-card-subtitle">黄瓜 · 4亩</div>
+            </div>
+            <div class="gh-card-status normal">正常</div>
+          </div>
+          <div class="gh-card-metrics">
+            <div class="gh-metric">
+              <div class="gh-metric-value">25.3°</div>
+              <div class="gh-metric-label">温度</div>
+            </div>
+            <div class="gh-metric">
+              <div class="gh-metric-value">72%</div>
+              <div class="gh-metric-label">湿度</div>
+            </div>
+          </div>
+          <div class="gh-card-footer">
+            <div class="gh-card-location">
+              <i class="ri-map-pin-line"></i> 河北固安
+            </div>
+            <div class="gh-card-link">
+              查看详情 <i class="ri-arrow-right-s-line"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 控制视图 - 情景化 -->
+    <div id="controlPage" class="page">
+      <div class="view-title"><i class="ri-settings-3-line"></i> 控制视图</div>
+
+      <div class="scenario-section">
+        <div class="scenario-title">快捷情景</div>
+        <div class="scenario-grid">
+          <div class="scenario-card active">
+            <div class="scenario-icon cooling"><i class="ri-snowy-line"></i></div>
+            <div class="scenario-name">降温模式</div>
+            <div class="scenario-desc">开启风机+遮阳</div>
+          </div>
+          <div class="scenario-card">
+            <div class="scenario-icon warming"><i class="ri-temp-hot-line"></i></div>
+            <div class="scenario-name">保温模式</div>
+            <div class="scenario-desc">关闭通风+补光灯</div>
+          </div>
+          <div class="scenario-card">
+            <div class="scenario-icon irrigation"><i class="ri-drop-line"></i></div>
+            <div class="scenario-name">灌溉模式</div>
+            <div class="scenario-desc">启动滴灌30分钟</div>
+          </div>
+          <div class="scenario-card">
+            <div class="scenario-icon light"><i class="ri-lightbulb-line"></i></div>
+            <div class="scenario-name">补光模式</div>
+            <div class="scenario-desc">开启补光灯4小时</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="scenario-section">
+        <div class="scenario-title">设备控制</div>
+        <div class="device-list">
+          <div class="device-item">
+            <div class="device-icon fan"><i class="ri-tornado-line"></i></div>
+            <div class="device-info">
+              <div class="device-name">风机</div>
+              <div class="device-status">当前: 关闭</div>
+            </div>
+            <div class="device-toggle on"></div>
+          </div>
+          <div class="device-item">
+            <div class="device-icon curtain"><i class="ri-sun-cloudy-line"></i></div>
+            <div class="device-info">
+              <div class="device-name">遮阳帘</div>
+              <div class="device-status">开度: 50%</div>
+            </div>
+            <div class="device-toggle on"></div>
+          </div>
+          <div class="device-item">
+            <div class="device-icon light"><i class="ri-lightbulb-line"></i></div>
+            <div class="device-info">
+              <div class="device-name">补光灯</div>
+              <div class="device-status">当前: 关闭</div>
+            </div>
+            <div class="device-toggle"></div>
+          </div>
+          <div class="device-item">
+            <div class="device-icon irrigation"><i class="ri-drop-line"></i></div>
+            <div class="device-info">
+              <div class="device-name">滴灌</div>
+              <div class="device-status">下次: 16:00</div>
+            </div>
+            <div class="device-toggle"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 分析视图 - 图表型 -->
+    <div id="analysisPage" class="page">
+      <div class="view-title"><i class="ri-bar-chart-line"></i> 分析视图</div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title"><i class="ri-line-chart-line"></i> 历史趋势</div>
+          <div class="chart-tabs">
+            <button class="chart-tab active">温度</button>
+            <button class="chart-tab">湿度</button>
+            <button class="chart-tab">光照</button>
+          </div>
+        </div>
+        <div class="chart-container" id="analysisChart"></div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value">28.5°</div>
+            <div class="stat-label">今日最高</div>
+            <div class="stat-change up">+2.3°</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">22.1°</div>
+            <div class="stat-label">今日最低</div>
+            <div class="stat-change">-0.5°</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">25.3°</div>
+            <div class="stat-label">平均温度</div>
+            <div class="stat-change up">+1.2°</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">72%</div>
+            <div class="stat-label">平均湿度</div>
+            <div class="stat-change down">-3%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title"><i class="ri-pie-chart-line"></i> 告警统计</div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" style="color: var(--danger)">3</div>
+            <div class="stat-label">紧急告警</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" style="color: var(--warning)">7</div>
+            <div class="stat-label">警告</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" style="color: var(--success)">12</div>
+            <div class="stat-label">已解决</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">89%</div>
+            <div class="stat-label">解决率</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部导航 -->
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="switchTab('card')">
+      <i class="ri-function-line"></i>
+      <span>卡片</span>
+    </div>
+    <div class="nav-item active" onclick="switchTab('monitor')">
+      <i class="ri-dashboard-fill"></i>
+      <span>监控</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('control')">
+      <i class="ri-settings-3-line"></i>
+      <span>控制</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('analysis')">
+      <i class="ri-bar-chart-line"></i>
+      <span>分析</span>
+    </div>
+  </div>
+
+  <script>
+    // Tab切换
+    function switchTab(tab) {
+      // 更新导航
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+
+      // 更新页面
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(tab + 'Page').classList.add('active');
+
+      // 更新设计说明
+      const titles = {
+        monitor: '监控视图 - 数据密集型',
+        card: '卡片视图 - 卡片式',
+        control: '控制视图 - 情景化',
+        analysis: '分析视图 - 图表型'
+      };
+      document.querySelector('.design-notes h4').innerHTML =
+        '<i class="ri-information-line"></i> 当前预览：' + titles[tab];
+
+      // 更新图表
+      if (tab === 'analysis') {
+        initAnalysisChart();
+      }
+    }
+
+    // 初始化分析图表
+    function initAnalysisChart() {
+      const chartDom = document.getElementById('analysisChart');
+      if (!chartDom) return;
+
+      const chart = echarts.init(chartDom);
+      const times = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'];
+      const tempData = [20, 19, 21, 25, 28, 27, 24];
+      const humidityData = [75, 78, 72, 65, 62, 68, 72];
+
+      chart.setOption({
+        tooltip: { trigger: 'axis' },
+        legend: { show: false },
+        grid: { left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true },
+        xAxis: {
+          type: 'category',
+          data: times,
+          axisLine: { lineStyle: { color: '#E2E8E0' } },
+          axisLabel: { color: '#6B7B6B', fontSize: 11 }
+        },
+        yAxis: {
+          type: 'value',
+          axisLine: { show: false },
+          splitLine: { lineStyle: { color: '#F0F2F0' } },
+          axisLabel: { color: '#6B7B6B' }
+        },
+        series: [
+          {
+            name: '温度',
+            type: 'line',
+            smooth: true,
+            symbol: 'none',
+            data: tempData,
+            itemStyle: { color: '#E53E3E' },
+            areaStyle: { color: '#E53E3E', opacity: 0.1 }
+          },
+          {
+            name: '湿度',
+            type: 'line',
+            smooth: true,
+            symbol: 'none',
+            data: humidityData,
+            itemStyle: { color: '#3182CE' },
+            areaStyle: { color: '#3182CE', opacity: 0.1 }
+          }
+        ],
+        animation: true
+      });
+    }
+
+    // 设备开关
+    document.querySelectorAll('.device-toggle').forEach(toggle => {
+      toggle.addEventListener('click', function() {
+        this.classList.toggle('on');
+      });
+    });
+
+    // 情景卡片
+    document.querySelectorAll('.scenario-card').forEach(card => {
+      card.addEventListener('click', function() {
+        document.querySelectorAll('.scenario-card').forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      // 默认初始化分析图表
+      setTimeout(initAnalysisChart, 100);
+    });
+  </script>
+</body>
+</html>

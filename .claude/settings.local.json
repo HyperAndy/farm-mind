@@ -56,7 +56,25 @@
       "WebFetch(domain:mobbin.com)",
       "Bash(git add *)",
       "Bash(git commit *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(python -c \"from app.api.greenhouses import router; print\\('OK'\\)\")",
+      "Bash(taskkill //PID 30692 //F)",
+      "Bash(taskkill //PID 42592 //F)",
+      "Bash(taskkill //PID 38744 //F)",
+      "Bash(python -c \"from app.agent.greenhoust_agent import get_agent; print\\('OK'\\)\")",
+      "Bash(findstr \"LISTENING\")",
+      "Bash(taskkill //F //PID 29500)",
+      "Bash(python -c \"import sys,json; print\\(len\\(json.load\\(sys.stdin\\)\\)\\)\")",
+      "Bash(python -c \"import sys,json;ghs=json.load\\(sys.stdin\\);print\\(f'Count: {len\\(ghs\\)}'\\);print\\(ghs[0]['id'] if ghs else 'none'\\)\")",
+      "Bash(taskkill //F //PID 15308)",
+      "Bash(del /s /q __pycache__ app\\\\__pycache__ app\\\\agent\\\\__pycache__)",
+      "Bash(dir /s /b __pycache__)",
+      "Bash(taskkill //F //PID 28148)",
+      "Bash(python -c ' *)",
+      "WebFetch(domain:www.sciencedirect.com)",
+      "WebFetch(domain:m.okcall.com)",
+      "WebFetch(domain:www.figma.com)",
+      "WebFetch(domain:www.growmorecg.com)"
     ]
   }
 }

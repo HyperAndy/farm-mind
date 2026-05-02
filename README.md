@@ -8,11 +8,20 @@ Smart greenhouse environment monitoring system, providing precise environmental 
 
 ## Features
 
-- Real-time environment monitoring (temperature/humidity/light/CO2/soil EC-pH)
-- AI intelligent recommendations (control suggestions based on environmental data + weather forecast)
-- Real-time alerts (immediate notifications for environmental anomalies)
-- Device control (fan/sunshade/supplementary lighting/drip irrigation)
-- Historical data chart analysis with ECharts
+- **Real-time environment monitoring** - temperature/humidity/light/CO2/soil EC-pH
+- **AI intelligent recommendations** - control suggestions based on environmental data + weather forecast
+- **Real-time alerts** - immediate notifications with multi-level alerts (urgent/warning/info)
+- **Device control** - fan/sunshade/supplementary lighting/drip irrigation with scenario modes
+- **Historical data charts** - ECharts visualization
+
+### Four View Design
+
+| View | Style | Description |
+|------|-------|-------------|
+| Card | Card Grid | Greenhouse overview with quick status |
+| Monitor | Data Intensive | Real-time metrics with large numbers, alert aggregation |
+| Control | Scenario-based | One-click scenarios, device switches |
+| Analysis | Chart-based | Historical trends, statistics |
 
 ## Tech Stack
 
@@ -49,8 +58,8 @@ Visit http://localhost:3000
 │   │   ├── models/      # Data models
 │   │   └── main.py      # FastAPI entry
 │   └── requirements.txt
-└── frontend/            # Frontend
-    └── index.html
+├── frontend/            # Frontend
+│   └── index.html
 ```
 
 ## License
