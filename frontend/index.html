@@ -9,7 +9,7 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     html { font-size: 14px; }
-    body { font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif; background: #F5F7F4; color: #2C3E28; min-height: 100vh; padding-bottom: calc(70px + env(safe-area-inset-bottom, 20px)); overflow-x: hidden; }
+    body { font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif; background: #F5F7F4; color: #2C3E28; min-height: 100vh; }
 
     :root {
       --primary: #2D7A4F;
@@ -28,9 +28,77 @@
       --space-md: 16px;
       --space-lg: 24px;
       --space-xl: 32px;
+      --radius: 16px;
+      --shadow: 0 2px 12px rgba(0,0,0,0.08);
     }
 
-    /* ========== 顶部导航 ========== */
+    /* ========== PC布局容器 ========== */
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ========== 侧边栏 (PC) ========== */
+    .sidebar {
+      width: 260px;
+      background: var(--primary);
+      color: white;
+      padding: var(--space-lg);
+      display: none;
+      flex-direction: column;
+      position: fixed;
+      height: 100vh;
+      left: 0;
+      top: 0;
+      z-index: 100;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: var(--space-xl);
+    }
+
+    .sidebar-logo i { font-size: 28px; }
+
+    .sidebar-nav { flex: 1; }
+
+    .sidebar-nav-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: 14px 16px;
+      border-radius: 12px;
+      color: rgba(255,255,255,0.8);
+      cursor: pointer;
+      margin-bottom: var(--space-xs);
+      font-size: 15px;
+      transition: all 0.2s;
+    }
+
+    .sidebar-nav-item:hover { background: rgba(255,255,255,0.1); color: white; }
+    .sidebar-nav-item.active { background: rgba(255,255,255,0.2); color: white; }
+    .sidebar-nav-item i { font-size: 20px; }
+
+    .sidebar-footer { padding-top: var(--space-md); border-top: 1px solid rgba(255,255,255,0.2); }
+
+    /* ========== 主内容区 ========== */
+    .main-content {
+      flex: 1;
+      padding: var(--space-lg);
+      padding-bottom: calc(70px + env(safe-area-inset-bottom, 20px));
+    }
+
+    @media (min-width: 1024px) {
+      .sidebar { display: flex; }
+      .main-content { margin-left: 260px; padding: var(--space-xl); }
+      .bottom-nav { display: none; }
+    }
+
+    /* ========== 顶部导航 (移动端) ========== */
     .header {
       position: sticky;
       top: 0;
@@ -43,6 +111,8 @@
       justify-content: space-between;
       box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     }
+
+    @media (min-width: 1024px) { .header { display: none; } }
 
     .header-left { display: flex; align-items: center; gap: var(--space-sm); }
     .header-logo { font-size: 20px; }
@@ -64,8 +134,6 @@
       cursor: pointer;
     }
 
-    .header-icon-btn:active { background: rgba(255,255,255,0.25); }
-
     .notification-badge {
       position: absolute;
       top: -2px;
@@ -79,7 +147,7 @@
       text-align: center;
     }
 
-    /* ========== 顶部告警横幅 ========== */
+    /* ========== 告警横幅 ========== */
     .alert-banner {
       position: fixed;
       top: 0;
@@ -97,8 +165,6 @@
     }
 
     .alert-banner.show { transform: translateY(0); }
-
-    .alert-banner-icon { font-size: 18px; }
     .alert-banner-text { flex: 1; font-size: 13px; font-weight: 500; }
     .alert-banner-close {
       width: 28px;
@@ -114,164 +180,107 @@
       cursor: pointer;
     }
 
-    /* ========== 主容器 ========== */
-    .container { padding: var(--space-md); }
-
-    /* ========== 大棚选择器 ========== */
-    .gh-selector {
+    /* ========== 页面标题 ========== */
+    .page-header {
       display: flex;
-      gap: var(--space-sm);
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scroll-snap-type: x mandatory;
-      padding: var(--space-xs) 0 var(--space-sm);
-      margin-bottom: var(--space-md);
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-lg);
     }
 
-    .gh-selector::-webkit-scrollbar { display: none; }
+    .page-title {
+      font-size: 24px;
+      font-weight: 700;
+    }
 
-    .gh-chip {
-      flex: 0 0 auto;
-      scroll-snap-align: start;
-      padding: 8px 16px;
-      background: white;
-      border: 2px solid var(--border);
-      border-radius: 20px;
-      font-size: 13px;
-      white-space: nowrap;
+    .page-subtitle {
+      font-size: 14px;
+      color: var(--text-light);
+      margin-top: 4px;
+    }
+
+    .page-actions { display: flex; gap: var(--space-sm); }
+
+    /* ========== 大棚卡片网格 ========== */
+    .gh-grid {
+      display: grid;
+      gap: var(--space-md);
+    }
+
+    @media (min-width: 768px) { .gh-grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-lg); } }
+    @media (min-width: 1280px) { .gh-grid { grid-template-columns: repeat(3, 1fr); } }
+
+    .gh-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow);
       cursor: pointer;
       transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
     }
 
-    .gh-chip.active {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-    }
+    .gh-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.12); }
 
-    /* ========== Hero 指标卡片 ========== */
-    .hero-card {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-      color: white;
-      border-radius: 20px;
-      padding: var(--space-lg);
+    .gh-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
       margin-bottom: var(--space-md);
     }
 
-    .hero-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-md); }
-    .hero-title { font-size: 16px; font-weight: 600; }
-    .hero-subtitle { font-size: 12px; opacity: 0.8; margin-top: 2px; }
+    .gh-card-title { font-size: 18px; font-weight: 600; }
+    .gh-card-subtitle { font-size: 13px; color: var(--text-light); margin-top: 4px; }
 
-    .hero-status {
-      display: flex;
-      align-items: center;
-      gap: 6px;
+    .gh-card-status {
       padding: 6px 12px;
-      background: rgba(255,255,255,0.2);
       border-radius: 20px;
       font-size: 12px;
-    }
-
-    .hero-metrics { display: flex; gap: var(--space-lg); }
-
-    .hero-metric { text-align: center; }
-
-    .hero-metric-value { font-size: 48px; font-weight: 700; line-height: 1; }
-    .hero-metric-unit { font-size: 16px; opacity: 0.8; margin-left: 2px; }
-    .hero-metric-label { font-size: 13px; opacity: 0.9; margin-top: var(--space-xs); }
-
-    .hero-metric-divider { width: 1px; background: rgba(255,255,255,0.3); }
-
-    /* ========== 二级指标横向滚动 ========== */
-    .secondary-metrics {
-      display: flex;
-      gap: var(--space-sm);
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scroll-snap-type: x mandatory;
-      padding-bottom: var(--space-sm);
-      margin-bottom: var(--space-md);
-    }
-
-    .secondary-metrics::-webkit-scrollbar { display: none; }
-
-    .secondary-card {
-      flex: 0 0 140px;
-      scroll-snap-align: start;
-      background: white;
-      border-radius: 16px;
-      padding: var(--space-md);
-      text-align: center;
-    }
-
-    .secondary-card-icon { font-size: 28px; margin-bottom: var(--space-sm); }
-    .secondary-card-value { font-size: 24px; font-weight: 700; color: var(--text); }
-    .secondary-card-label { font-size: 12px; color: var(--text-light); margin-top: 4px; }
-
-    .secondary-card.warning .secondary-card-value { color: var(--warning); }
-    .secondary-card.danger .secondary-card-value { color: var(--danger); }
-
-    /* ========== AI 建议卡片 ========== */
-    .ai-suggestion-card {
-      background: #F0FDF4;
-      border-left: 4px solid var(--primary);
-      border-radius: 12px;
-      padding: var(--space-md);
-      margin-bottom: var(--space-md);
-    }
-
-    .ai-suggestion-header {
-      display: flex;
-      align-items: center;
-      gap: var(--space-sm);
-      font-weight: 600;
-      color: var(--primary);
-      margin-bottom: var(--space-sm);
-    }
-
-    .ai-suggestion-header i { font-size: 18px; }
-
-    .ai-confidence {
-      font-size: 11px;
-      background: rgba(45, 122, 79, 0.1);
-      padding: 2px 8px;
-      border-radius: 10px;
-      margin-left: auto;
-    }
-
-    .ai-suggestion-text { font-size: 14px; line-height: 1.5; color: var(--text); margin-bottom: var(--space-md); }
-
-    .ai-suggestion-actions { display: flex; gap: var(--space-sm); }
-
-    .ai-btn {
-      flex: 1;
-      padding: 12px;
-      border: none;
-      border-radius: 10px;
-      font-size: 14px;
       font-weight: 500;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      min-height: 44px;
     }
 
-    .ai-btn.accept { background: var(--primary); color: white; }
-    .ai-btn.reject { background: #E8F5E9; color: var(--primary); }
-    .ai-btn:active { opacity: 0.8; }
+    .gh-card-status.normal { background: #E8F5E9; color: var(--primary); }
+    .gh-card-status.warning { background: #FEF3C7; color: #B45309; }
+    .gh-card-status.danger { background: #FEE2E2; color: var(--danger); }
+
+    .gh-card-metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-md);
+      padding: var(--space-md);
+      background: var(--bg);
+      border-radius: 12px;
+    }
+
+    .gh-metric { text-align: center; }
+    .gh-metric-value { font-size: 24px; font-weight: 700; }
+    .gh-metric-label { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+    .gh-metric-unit { font-size: 14px; opacity: 0.7; }
+
+    .gh-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: var(--space-md);
+      padding-top: var(--space-md);
+      border-top: 1px solid var(--border);
+    }
+
+    .gh-card-info { font-size: 13px; color: var(--text-light); display: flex; gap: var(--space-md); }
+    .gh-card-link { color: var(--primary); font-size: 13px; display: flex; align-items: center; gap: 4px; }
 
     /* ========== 图表卡片 ========== */
     .chart-card {
-      background: white;
-      border-radius: 16px;
-      padding: var(--space-md);
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
       margin-bottom: var(--space-md);
+      box-shadow: var(--shadow);
     }
 
     .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md); }
-    .chart-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: var(--space-sm); }
+    .chart-title { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: var(--space-sm); }
     .chart-title i { color: var(--primary); }
 
     .chart-tabs { display: flex; gap: 6px; }
@@ -287,14 +296,15 @@
     }
     .chart-tab.active { background: var(--primary); color: white; }
 
-    .chart-container { height: 220px; }
+    .chart-container { height: 280px; }
 
     /* ========== 设备控制 ========== */
     .device-card {
-      background: white;
-      border-radius: 16px;
-      padding: var(--space-md);
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
       margin-bottom: var(--space-md);
+      box-shadow: var(--shadow);
     }
 
     .device-list { display: flex; flex-direction: column; gap: var(--space-sm); }
@@ -353,34 +363,55 @@
     }
     .device-toggle.on::after { left: 24px; }
 
-    /* ========== 快捷操作 ========== */
-    .quick-actions {
-      display: flex;
-      gap: var(--space-sm);
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      padding: var(--space-xs) 0;
+    /* ========== AI 建议卡片 ========== */
+    .ai-suggestion-card {
+      background: #F0FDF4;
+      border-left: 4px solid var(--primary);
+      border-radius: 12px;
+      padding: var(--space-md);
       margin-bottom: var(--space-md);
     }
 
-    .quick-actions::-webkit-scrollbar { display: none; }
+    .ai-suggestion-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: var(--space-sm);
+    }
 
-    .quick-btn {
-      flex: 0 0 auto;
-      padding: 10px 16px;
-      background: var(--primary);
-      color: white;
+    .ai-suggestion-header i { font-size: 18px; }
+    .ai-confidence {
+      font-size: 11px;
+      background: rgba(45, 122, 79, 0.1);
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-left: auto;
+    }
+
+    .ai-suggestion-text { font-size: 14px; line-height: 1.5; color: var(--text); margin-bottom: var(--space-md); }
+
+    .ai-suggestion-actions { display: flex; gap: var(--space-sm); }
+
+    .ai-btn {
+      flex: 1;
+      padding: 12px;
       border: none;
-      border-radius: 20px;
-      font-size: 13px;
-      white-space: nowrap;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
       cursor: pointer;
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
-      min-height: 40px;
+      min-height: 44px;
     }
-    .quick-btn:active { opacity: 0.8; }
+
+    .ai-btn.accept { background: var(--primary); color: white; }
+    .ai-btn.reject { background: #E8F5E9; color: var(--primary); }
+    .ai-btn:active { opacity: 0.8; }
 
     /* ========== 底部导航 ========== */
     .bottom-nav {
@@ -410,14 +441,10 @@
     }
 
     .nav-item i { font-size: 24px; }
-
-    .nav-item.active {
-      color: var(--primary);
-    }
-
+    .nav-item.active { color: var(--primary); }
     .nav-item:active { opacity: 0.7; }
 
-    /* ========== 添加大棚弹窗 ========== */
+    /* ========== 弹窗 ========== */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -426,7 +453,7 @@
       bottom: 0;
       background: rgba(0,0,0,0.5);
       display: none;
-      align-items: flex-end;
+      align-items: center;
       justify-content: center;
       z-index: 200;
     }
@@ -435,9 +462,10 @@
 
     .modal {
       background: white;
-      border-radius: 20px 20px 0 0;
+      border-radius: 20px;
       padding: var(--space-lg);
-      width: 100%;
+      width: 90%;
+      max-width: 480px;
       max-height: 80vh;
       overflow-y: auto;
     }
@@ -459,7 +487,6 @@
       font-size: 15px;
     }
     .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); }
-
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); }
 
     .modal-actions { display: flex; gap: var(--space-md); margin-top: var(--space-lg); }
@@ -475,181 +502,216 @@
     }
     .modal-btn.primary { background: var(--primary); color: white; }
     .modal-btn.secondary { background: var(--bg); color: var(--text); }
-    .modal-btn:active { opacity: 0.9; }
 
-    /* ========== 响应式：平板及以上 ========== */
-    @media (min-width: 768px) {
-      .hero-metrics { justify-content: center; }
-      .hero-metric-value { font-size: 56px; }
-      .secondary-metrics { justify-content: center; }
-      .container { max-width: 600px; margin: 0 auto; }
-    }
+    /* ========== 状态 ========== */
+    .loading { text-align: center; padding: 60px var(--space-md); color: var(--text-light); }
+    .loading i { font-size: 48px; margin-bottom: var(--space-md); display: block; animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-    @media (min-width: 1024px) {
-      body { padding-bottom: 0; }
-      .bottom-nav { display: none; }
-      .container { max-width: 800px; padding: var(--space-lg); }
-      .chart-container { height: 280px; }
-    }
-
-    /* ========== 加载状态 ========== */
-    .loading { text-align: center; padding: 40px; color: var(--text-light); }
     .empty { text-align: center; padding: 60px var(--space-md); color: var(--text-light); }
-    .empty-icon { font-size: 48px; margin-bottom: var(--space-md); opacity: 0.5; }
+    .empty-icon { font-size: 64px; margin-bottom: var(--space-md); opacity: 0.5; }
+    .empty-text { font-size: 16px; margin-bottom: var(--space-lg); }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+
+    /* ========== 大棚详情页 ========== */
+    .detail-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+
+    .back-btn {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 20px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+    }
+
+    .detail-title { font-size: 20px; font-weight: 600; }
+
+    .detail-grid {
+      display: grid;
+      gap: var(--space-md);
+    }
+
+    @media (min-width: 768px) {
+      .detail-grid { grid-template-columns: 1fr 1fr; }
+      .detail-grid .chart-card, .detail-grid .device-card { margin-bottom: 0; }
+    }
+
+    /* ========== 辅助类 ========== */
+    .text-danger { color: var(--danger); }
+    .text-warning { color: var(--warning); }
+    .text-success { color: var(--success); }
   </style>
 </head>
 <body>
-  <!-- 顶部告警横幅 -->
+  <!-- 告警横幅 -->
   <div class="alert-banner" id="alertBanner">
-    <i class="ri-error-warning-line alert-banner-icon"></i>
+    <i class="ri-error-warning-line" style="font-size:18px"></i>
     <span class="alert-banner-text" id="alertBannerText">温度过高：32.5℃</span>
     <button class="alert-banner-close" onclick="hideAlertBanner()"><i class="ri-close-line"></i></button>
   </div>
 
-  <!-- 顶部导航 -->
+  <!-- 移动端顶部导航 -->
   <div class="header">
     <div class="header-left">
-      <i class="ri-team-line header-logo"></i>
+      <i class="ri-leaf-line header-logo"></i>
       <span class="header-title">FarmMind</span>
     </div>
     <div class="header-right">
-      <button class="header-icon-btn" onclick="showAlertBanner()">
-        <i class="ri-notification-3-line"></i>
-        <span class="notification-badge">3</span>
-      </button>
       <button class="header-icon-btn" onclick="showAddModal()">
         <i class="ri-add-line"></i>
       </button>
     </div>
   </div>
 
-  <!-- 主容器 -->
-  <div class="container" id="mainContent">
-    <!-- 大棚选择器 -->
-    <div class="gh-selector" id="ghSelector">
-      <div class="loading">加载中...</div>
+  <!-- PC端侧边栏 -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <i class="ri-leaf-line"></i>
+      <span>FarmMind</span>
     </div>
+    <div class="sidebar-nav">
+      <div class="sidebar-nav-item active" onclick="showPage('home')">
+        <i class="ri-home-4-fill"></i>
+        <span>首页</span>
+      </div>
+      <div class="sidebar-nav-item" onclick="showPage('control')">
+        <i class="ri-settings-3-line"></i>
+        <span>设备控制</span>
+      </div>
+      <div class="sidebar-nav-item" onclick="showPage('alert')">
+        <i class="ri-error-warning-line"></i>
+        <span>告警中心</span>
+      </div>
+      <div class="sidebar-nav-item" onclick="showPage('profile')">
+        <i class="ri-user-line"></i>
+        <span>个人中心</span>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-nav-item">
+        <i class="ri-settings-3-line"></i>
+        <span>系统设置</span>
+      </div>
+    </div>
+  </div>
 
-    <!-- Hero 指标卡片 -->
-    <div class="hero-card" id="heroCard">
-      <div class="hero-header">
+  <!-- 主内容 -->
+  <div class="main-content" id="mainContent">
+    <!-- 首页 - 大棚卡片列表 -->
+    <div id="homePage">
+      <div class="page-header">
         <div>
-          <div class="hero-title" id="heroTitle">番茄1号棚</div>
-          <div class="hero-subtitle" id="heroSubtitle">番茄 · 5亩 · 山东寿光</div>
+          <div class="page-title">我的大棚</div>
+          <div class="page-subtitle" id="totalSubtitle">共 0 个大棚</div>
         </div>
-        <div class="hero-status">
-          <i class="ri-checkbox-circle-fill"></i>
-          <span>环境正常</span>
+        <div class="page-actions">
+          <button class="btn btn-primary" onclick="showAddModal()">
+            <i class="ri-add-line"></i> 添加大棚
+          </button>
         </div>
       </div>
-      <div class="hero-metrics">
-        <div class="hero-metric">
-          <div class="hero-metric-value"><span id="heroTemp">25.3</span><span class="hero-metric-unit">°C</span></div>
-          <div class="hero-metric-label">温度</div>
-        </div>
-        <div class="hero-metric-divider"></div>
-        <div class="hero-metric">
-          <div class="hero-metric-value"><span id="heroHumidity">72</span><span class="hero-metric-unit">%</span></div>
-          <div class="hero-metric-label">湿度</div>
-        </div>
+      <div id="ghGrid" class="gh-grid">
+        <div class="loading"><i class="ri-loader-4-line"></i>加载中...</div>
       </div>
     </div>
 
-    <!-- 快捷操作 -->
-    <div class="quick-actions">
-      <button class="quick-btn" onclick="switchGh('prev')"><i class="ri-arrow-left-s-line"></i> 上一个</button>
-      <button class="quick-btn" onclick="switchGh('next')">下一个 <i class="ri-arrow-right-s-line"></i></button>
-      <button class="quick-btn" onclick="refreshData()"><i class="ri-refresh-line"></i> 刷新</button>
-    </div>
+    <!-- 大棚详情页 -->
+    <div id="detailPage" style="display:none;">
+      <div class="detail-header">
+        <button class="back-btn" onclick="showHomePage()"><i class="ri-arrow-left-line"></i></button>
+        <div class="detail-title" id="detailTitle">番茄1号棚</div>
+      </div>
 
-    <!-- AI 建议 -->
-    <div class="ai-suggestion-card" id="aiSuggestionCard">
-      <div class="ai-suggestion-header">
-        <i class="ri-lightbulb-line"></i>
-        <span>AI 智能建议</span>
-        <span class="ai-confidence" id="aiConfidence">置信度 85%</span>
-      </div>
-      <div class="ai-suggestion-text" id="aiSuggestionText">当前环境正常，建议保持当前状态。如天气持续晴好，可适当增加通风。</div>
-      <div class="ai-suggestion-actions">
-        <button class="ai-btn accept" onclick="acceptSuggestion()"><i class="ri-check-line"></i> 采纳</button>
-        <button class="ai-btn reject" onclick="rejectSuggestion()"><i class="ri-close-line"></i> 忽略</button>
-      </div>
-    </div>
-
-    <!-- 二级指标横向滚动 -->
-    <div class="secondary-metrics" id="secondaryMetrics">
-      <div class="secondary-card">
-        <div class="secondary-card-icon"><i class="ri-sun-line"></i></div>
-        <div class="secondary-card-value" id="secLight">28.5</div>
-        <div class="secondary-card-label">光照 (klux)</div>
-      </div>
-      <div class="secondary-card">
-        <div class="secondary-card-icon"><i class="ri-windy-line"></i></div>
-        <div class="secondary-card-value" id="secCO2">650</div>
-        <div class="secondary-card-label">CO2 (ppm)</div>
-      </div>
-      <div class="secondary-card warning">
-        <div class="secondary-card-icon"><i class="ri-water-percent-line"></i></div>
-        <div class="secondary-card-value" id="secSoilEC">1.8</div>
-        <div class="secondary-card-label">土壤EC</div>
-      </div>
-      <div class="secondary-card">
-        <div class="secondary-card-icon"><i class="ri-temp-hot-line"></i></div>
-        <div class="secondary-card-value" id="secSoilTemp">22.5</div>
-        <div class="secondary-card-label">土温 (°C)</div>
-      </div>
-    </div>
-
-    <!-- 图表 -->
-    <div class="chart-card">
-      <div class="chart-header">
-        <div class="chart-title"><i class="ri-line-chart-line"></i> 历史趋势</div>
-        <div class="chart-tabs">
-          <button class="chart-tab active" onclick="switchChart('temp', this)">温度</button>
-          <button class="chart-tab" onclick="switchChart('humidity', this)">湿度</button>
-          <button class="chart-tab" onclick="switchChart('light', this)">光照</button>
+      <!-- AI 建议 -->
+      <div class="ai-suggestion-card" id="aiSuggestionCard">
+        <div class="ai-suggestion-header">
+          <i class="ri-lightbulb-line"></i>
+          <span>AI 智能建议</span>
+          <span class="ai-confidence" id="aiConfidence">置信度 85%</span>
+        </div>
+        <div class="ai-suggestion-text" id="aiSuggestionText">加载中...</div>
+        <div class="ai-suggestion-actions">
+          <button class="ai-btn accept" onclick="acceptSuggestion()"><i class="ri-check-line"></i> 采纳</button>
+          <button class="ai-btn reject" onclick="rejectSuggestion()"><i class="ri-close-line"></i> 忽略</button>
         </div>
       </div>
-      <div class="chart-container" id="historyChart"></div>
-    </div>
 
-    <!-- 设备控制 -->
-    <div class="device-card">
-      <div class="chart-header">
-        <div class="chart-title"><i class="ri-settings-3-line"></i> 设备控制</div>
-      </div>
-      <div class="device-list">
-        <div class="device-item">
-          <div class="device-icon fan"><i class="ri-tornado-line"></i></div>
-          <div class="device-info">
-            <div class="device-name">风机</div>
-            <div class="device-status">当前: 关闭</div>
+      <!-- 图表 -->
+      <div class="detail-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title"><i class="ri-line-chart-line"></i> 历史趋势</div>
+            <div class="chart-tabs">
+              <button class="chart-tab active" onclick="switchChart('temp', this)">温度</button>
+              <button class="chart-tab" onclick="switchChart('humidity', this)">湿度</button>
+              <button class="chart-tab" onclick="switchChart('light', this)">光照</button>
+            </div>
           </div>
-          <div class="device-toggle" onclick="toggleDevice(this, 'fan')"></div>
+          <div class="chart-container" id="historyChart"></div>
         </div>
-        <div class="device-item">
-          <div class="device-icon curtain"><i class="ri-sun-cloudy-line"></i></div>
-          <div class="device-info">
-            <div class="device-name">遮阳帘</div>
-            <div class="device-status">开度: 30%</div>
+
+        <!-- 设备控制 -->
+        <div class="device-card">
+          <div class="chart-header">
+            <div class="chart-title"><i class="ri-settings-3-line"></i> 设备控制</div>
           </div>
-          <div class="device-toggle on" onclick="toggleDevice(this, 'curtain')"></div>
-        </div>
-        <div class="device-item">
-          <div class="device-icon light"><i class="ri-lightbulb-line"></i></div>
-          <div class="device-info">
-            <div class="device-name">补光灯</div>
-            <div class="device-status">当前: 关闭</div>
+          <div class="device-list">
+            <div class="device-item">
+              <div class="device-icon fan"><i class="ri-tornado-line"></i></div>
+              <div class="device-info">
+                <div class="device-name">风机</div>
+                <div class="device-status">当前: 关闭</div>
+              </div>
+              <div class="device-toggle" onclick="toggleDevice(this, 'fan')"></div>
+            </div>
+            <div class="device-item">
+              <div class="device-icon curtain"><i class="ri-sun-cloudy-line"></i></div>
+              <div class="device-info">
+                <div class="device-name">遮阳帘</div>
+                <div class="device-status">开度: 30%</div>
+              </div>
+              <div class="device-toggle on" onclick="toggleDevice(this, 'curtain')"></div>
+            </div>
+            <div class="device-item">
+              <div class="device-icon light"><i class="ri-lightbulb-line"></i></div>
+              <div class="device-info">
+                <div class="device-name">补光灯</div>
+                <div class="device-status">当前: 关闭</div>
+              </div>
+              <div class="device-toggle" onclick="toggleDevice(this, 'light')"></div>
+            </div>
+            <div class="device-item">
+              <div class="device-icon irrigation"><i class="ri-drop-line"></i></div>
+              <div class="device-info">
+                <div class="device-name">滴灌</div>
+                <div class="device-status">下次: 14:00</div>
+              </div>
+              <div class="device-toggle" onclick="toggleDevice(this, 'irrigation')"></div>
+            </div>
           </div>
-          <div class="device-toggle" onclick="toggleDevice(this, 'light')"></div>
-        </div>
-        <div class="device-item">
-          <div class="device-icon irrigation"><i class="ri-drop-line"></i></div>
-          <div class="device-info">
-            <div class="device-name">滴灌</div>
-            <div class="device-status">下次: 14:00</div>
-          </div>
-          <div class="device-toggle" onclick="toggleDevice(this, 'irrigation')"></div>
         </div>
       </div>
     </div>
@@ -713,7 +775,7 @@
   <script>
     const API_BASE = 'http://localhost:8000/api/v1';
     let greenhouses = [];
-    let currentIndex = 0;
+    let currentGhId = null;
     let historyChart = null;
     let currentChartType = 'temp';
 
@@ -726,98 +788,128 @@
     async function loadGreenhouses() {
       try {
         const res = await fetch(`${API_BASE}/greenhouses`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         greenhouses = await res.json();
-        renderGhSelector();
-        if (greenhouses.length > 0) {
-          selectGh(0);
-        }
+        renderGhGrid();
       } catch (err) {
-        document.getElementById('ghSelector').innerHTML = '<div class="empty"><div class="empty-icon"><i class="ri-cloud-off-line"></i></div>服务未连接<br><button onclick="loadGreenhouses()" style="margin-top:10px;padding:10px 20px;background:var(--primary);color:white;border:none;border-radius:8px;cursor:pointer;">重试</button></div>';
+        document.getElementById('ghGrid').innerHTML = `
+          <div class="empty">
+            <div class="empty-icon"><i class="ri-cloud-off-line"></i></div>
+            <div class="empty-text">无法连接服务</div>
+            <button class="btn btn-primary" onclick="loadGreenhouses()">
+              <i class="ri-refresh-line"></i> 重试
+            </button>
+          </div>
+        `;
       }
     }
 
-    // 渲染大棚选择器
-    function renderGhSelector() {
-      const selector = document.getElementById('ghSelector');
+    // 渲染大棚卡片网格
+    function renderGhGrid() {
+      const grid = document.getElementById('ghGrid');
+      document.getElementById('totalSubtitle').textContent = `共 ${greenhouses.length} 个大棚`;
+
       if (greenhouses.length === 0) {
-        selector.innerHTML = '<button class="quick-btn" onclick="showAddModal()"><i class="ri-add-line"></i> 添加大棚</button>';
+        grid.innerHTML = `
+          <div class="empty">
+            <div class="empty-icon"><i class="ri-home-line"></i></div>
+            <div class="empty-text">暂无大棚，点击添加</div>
+            <button class="btn btn-primary" onclick="showAddModal()">
+              <i class="ri-add-line"></i> 添加大棚
+            </button>
+          </div>
+        `;
         return;
       }
-      selector.innerHTML = greenhouses.map((gh, i) => `
-        <div class="gh-chip ${i === currentIndex ? 'active' : ''}" onclick="selectGh(${i})">
-          ${gh.name}
-        </div>
-      `).join('');
+
+      grid.innerHTML = greenhouses.map(gh => {
+        const cropName = getCropName(gh.crop_type);
+        return `
+          <div class="gh-card" onclick="showDetailPage('${gh.id}')">
+            <div class="gh-card-header">
+              <div>
+                <div class="gh-card-title">${gh.name}</div>
+                <div class="gh-card-subtitle">${cropName} · ${gh.area}亩</div>
+              </div>
+              <div class="gh-card-status normal">正常</div>
+            </div>
+            <div class="gh-card-metrics">
+              <div class="gh-metric">
+                <div class="gh-metric-value" id="temp_${gh.id.replace(/-/g,'')}">--</div>
+                <div class="gh-metric-label">温度 (°C)</div>
+              </div>
+              <div class="gh-metric">
+                <div class="gh-metric-value" id="hum_${gh.id.replace(/-/g,'')}">--</div>
+                <div class="gh-metric-label">湿度 (%)</div>
+              </div>
+            </div>
+            <div class="gh-card-footer">
+              <div class="gh-card-info">
+                <span><i class="ri-map-pin-line"></i> ${gh.location}</span>
+              </div>
+              <div class="gh-card-link">
+                查看详情 <i class="ri-arrow-right-s-line"></i>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // 加载各棚数据
+      greenhouses.forEach(gh => loadGhCardData(gh.id));
     }
 
-    // 选择大棚
-    function selectGh(index) {
-      currentIndex = index;
-      renderGhSelector();
-      refreshData();
+    // 加载卡片数据
+    async function loadGhCardData(ghId) {
+      try {
+        const res = await fetch(`${API_BASE}/greenhouses/${ghId}/env/current`);
+        const env = await res.json();
+        const suffix = ghId.replace(/-/g, '');
+        document.getElementById(`temp_${suffix}`).textContent = env.temperature.toFixed(1);
+        document.getElementById(`hum_${suffix}`).textContent = env.humidity.toFixed(0);
+      } catch (e) { /* ignore */ }
     }
 
-    // 切换大棚
-    function switchGh(direction) {
-      if (greenhouses.length === 0) return;
-      if (direction === 'prev') {
-        currentIndex = (currentIndex - 1 + greenhouses.length) % greenhouses.length;
-      } else {
-        currentIndex = (currentIndex + 1) % greenhouses.length;
-      }
-      selectGh(currentIndex);
+    // 显示首页
+    function showHomePage() {
+      document.getElementById('homePage').style.display = 'block';
+      document.getElementById('detailPage').style.display = 'none';
     }
 
-    // 刷新数据
-    async function refreshData() {
-      if (greenhouses.length === 0) return;
-      const gh = greenhouses[currentIndex];
+    // 显示详情页
+    async function showDetailPage(ghId) {
+      currentGhId = ghId;
+      const gh = greenhouses.find(g => g.id === ghId);
       if (!gh) return;
 
-      try {
-        // 更新基本信息
-        document.getElementById('heroTitle').textContent = gh.name;
-        document.getElementById('heroSubtitle').textContent = `${getCropName(gh.crop_type)} · ${gh.area}亩 · ${gh.location}`;
+      document.getElementById('homePage').style.display = 'none';
+      document.getElementById('detailPage').style.display = 'block';
+      document.getElementById('detailTitle').textContent = gh.name;
 
-        // 获取环境数据
-        const envRes = await fetch(`${API_BASE}/greenhouses/${gh.id}/env/current`);
-        const env = await envRes.json();
-        updateMetrics(env);
-
-        // 获取AI分析
-        const analyzeRes = await fetch(`${API_BASE}/greenhouses/${gh.id}/analyze`, { method: 'POST' });
-        const analyze = await analyzeRes.json();
-        updateSuggestion(analyze);
-
-        updateChart();
-      } catch (err) {
-        console.error('Refresh failed:', err);
-      }
+      await loadDetailData(ghId);
     }
 
-    // 更新指标
-    function updateMetrics(env) {
-      const optimal = getOptimal(greenhouses[currentIndex]?.crop_type || 'tomato');
+    // 加载详情数据
+    async function loadDetailData(ghId) {
+      try {
+        // 获取AI分析
+        const analyzeRes = await fetch(`${API_BASE}/greenhouses/${ghId}/analyze`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
 
-      document.getElementById('heroTemp').textContent = env.temperature.toFixed(1);
-      document.getElementById('heroHumidity').textContent = env.humidity.toFixed(0);
-      document.getElementById('secLight').textContent = (env.light / 1000).toFixed(1);
-      document.getElementById('secCO2').textContent = env.co2;
-      document.getElementById('secSoilEC').textContent = env.soil_ec?.toFixed(1) || '-';
-      document.getElementById('secSoilTemp').textContent = env.soil_temp?.toFixed(1) || '-';
+        if (!analyzeRes.ok) {
+          const text = await analyzeRes.text();
+          console.error('Analyze error:', text);
+          throw new Error(`Analyze failed: ${analyzeRes.status}`);
+        }
 
-      // 更新状态
-      const heroCard = document.getElementById('heroCard');
-      const statusEl = heroCard.querySelector('.hero-status span');
-      if (env.temperature > optimal.temp_max) {
-        statusEl.textContent = '温度偏高';
-        heroCard.querySelector('.hero-status').style.background = 'rgba(245, 158, 11, 0.3)';
-      } else if (env.temperature < optimal.temp_min) {
-        statusEl.textContent = '温度偏低';
-        heroCard.querySelector('.hero-status').style.background = 'rgba(245, 158, 11, 0.3)';
-      } else {
-        statusEl.textContent = '环境正常';
-        heroCard.querySelector('.hero-status').style.background = 'rgba(255,255,255,0.2)';
+        const analyze = await analyzeRes.json();
+        updateSuggestion(analyze);
+        updateChart();
+      } catch (err) {
+        console.error('Load detail failed:', err);
+        document.getElementById('aiSuggestionText').textContent = '数据加载失败，请重试';
       }
     }
 
@@ -826,18 +918,22 @@
       if (data.suggestion) {
         document.getElementById('aiSuggestionText').textContent = data.suggestion.suggestion;
         document.getElementById('aiConfidence').textContent = `置信度 ${(data.suggestion.confidence * 100).toFixed(0)}%`;
+      } else if (data.analysis) {
+        document.getElementById('aiSuggestionText').textContent = data.analysis;
       }
     }
 
     // 初始化图表
     function initChart() {
       const chartDom = document.getElementById('historyChart');
+      if (!chartDom) return;
       historyChart = echarts.init(chartDom);
-      window.addEventListener('resize', () => historyChart.resize());
+      window.addEventListener('resize', () => historyChart?.resize());
     }
 
     // 更新图表
     function updateChart() {
+      if (!historyChart) return;
       const now = new Date();
       const times = [];
       const data = [];
@@ -885,22 +981,14 @@
       console.log(`${type} ${status}`);
     }
 
-    // 告警横幅
-    function showAlertBanner() {
-      document.getElementById('alertBanner').classList.add('show');
-    }
+    // 页面导航
+    function showPage(page) {
+      document.querySelectorAll('.nav-item, .sidebar-nav-item').forEach(n => n.classList.remove('active'));
+      event.currentTarget?.classList.add('active');
 
-    function hideAlertBanner() {
-      document.getElementById('alertBanner').classList.remove('show');
-    }
-
-    // 建议操作
-    function acceptSuggestion() {
-      alert('建议已采纳');
-    }
-
-    function rejectSuggestion() {
-      alert('已忽略');
+      if (page === 'home') {
+        showHomePage();
+      }
     }
 
     // 弹窗
@@ -925,39 +1013,44 @@
       }
 
       try {
-        await fetch(`${API_BASE}/greenhouses`, {
+        const res = await fetch(`${API_BASE}/greenhouses`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, crop_type: crop, area, location })
         });
+
+        if (!res.ok) throw new Error('Create failed');
+
         hideAddModal();
         loadGreenhouses();
+
+        // 清空表单
+        document.getElementById('ghName').value = '';
+        document.getElementById('ghArea').value = '';
+        document.getElementById('ghLocation').value = '';
       } catch (err) {
         alert('创建失败');
       }
     }
 
-    // 底部导航
-    function showPage(page) {
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      event.currentTarget.classList.add('active');
-      // 实际项目中切换页面内容
+    // 建议操作
+    function acceptSuggestion() {
+      alert('建议已采纳');
+    }
+
+    function rejectSuggestion() {
+      alert('已忽略');
+    }
+
+    // 告警横幅
+    function hideAlertBanner() {
+      document.getElementById('alertBanner').classList.remove('show');
     }
 
     // 辅助函数
     function getCropName(type) {
       const names = { tomato: '番茄', strawberry: '草莓', mushroom: '菌菇', flower: '花卉', vegetable: '蔬菜' };
       return names[type] || type;
-    }
-
-    function getOptimal(crop) {
-      return {
-        tomato: { temp_min: 18, temp_max: 28, humidity_min: 50, humidity_max: 80 },
-        strawberry: { temp_min: 15, temp_max: 25, humidity_min: 60, humidity_max: 85 },
-        mushroom: { temp_min: 15, temp_max: 24, humidity_min: 75, humidity_max: 95 },
-        flower: { temp_min: 18, temp_max: 30, humidity_min: 50, humidity_max: 80 },
-        vegetable: { temp_min: 18, temp_max: 30, humidity_min: 60, humidity_max: 85 }
-      }[crop] || { temp_min: 18, temp_max: 28, humidity_min: 50, humidity_max: 80 };
     }
   </script>
 </body>
