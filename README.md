@@ -1,24 +1,28 @@
 # FarmMind
 
-智能温室大棚环境监控系统，基于 AI Agent 为种植户提供精准的环境控制建议。
+Smart greenhouse environment monitoring system, providing precise environmental control recommendations for growers through AI Agent.
 
-## 功能
+[English](./README.md) | [中文](./README_zh.md)
 
-- 环境数据监控（温度/湿度/光照/CO2/土壤EC-pH）
-- AI 智能建议（基于环境数据+天气预报生成控制建议）
-- 实时告警（环境异常即时通知）
-- 设备控制（风机/遮阳帘/补光灯/滴灌）
-- 历史数据图表分析
+---
 
-## 技术栈
+## Features
 
-- **后端**: FastAPI + Python
-- **前端**: HTML/CSS/JavaScript + ECharts + Remix Icon
-- **Agent**: 基于规则引擎的温室环境分析
+- Real-time environment monitoring (temperature/humidity/light/CO2/soil EC-pH)
+- AI intelligent recommendations (control suggestions based on environmental data + weather forecast)
+- Real-time alerts (immediate notifications for environmental anomalies)
+- Device control (fan/sunshade/supplementary lighting/drip irrigation)
+- Historical data chart analysis with ECharts
 
-## 快速启动
+## Tech Stack
 
-### 后端
+- **Backend**: FastAPI + Python
+- **Frontend**: HTML/CSS/JavaScript + ECharts + Remix Icon
+- **Agent**: Rule-based greenhouse environment analysis
+
+## Quick Start
+
+### Backend
 
 ```bash
 cd backend
@@ -26,25 +30,29 @@ pip install -r requirements.txt
 python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-### 前端
+### Frontend
 
 ```bash
 cd frontend
 python -m http.server 3000
 ```
 
-访问 http://localhost:3000
+Visit http://localhost:3000
 
-## 项目结构
+## Project Structure
 
 ```
-├── backend/              # 后端服务
+├── backend/              # Backend service
 │   ├── app/
-│   │   ├── agent/       # Agent 决策逻辑
-│   │   ├── api/         # API 路由
-│   │   ├── models/       # 数据模型
-│   │   └── main.py       # FastAPI 入口
+│   │   ├── agent/       # Agent decision logic
+│   │   ├── api/         # API routes
+│   │   ├── models/      # Data models
+│   │   └── main.py      # FastAPI entry
 │   └── requirements.txt
-└── frontend/             # 前端页面
+└── frontend/            # Frontend
     └── index.html
 ```
+
+## License
+
+MIT
