@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>设施大棚智能管控 Agent</title>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <style>
+    .ri { display: inline-block; vertical-align: middle; }
+    .ri-lg { font-size: 24px; }
+    .ri-xl { font-size: 28px; }
+    .ri-2xl { font-size: 36px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif; background: #F5F7F4; color: #2C3E28; }
+
+    /* 颜色变量 */
+    :root {
+      --primary: #2D7A4F;
+      --primary-light: #4A9D6E;
+      --primary-dark: #1F5535;
+      --accent: #F5A623;
+      --accent-red: #E53E3E;
+      --accent-yellow: #F59E0B;
+      --bg: #F5F7F4;
+      --bg-card: #FFFFFF;
+      --bg-dark: #1A1A1A;
+      --text: #2C3E28;
+      --text-light: #6B7B6B;
+      --border: #E2E8E0;
+      --success: #48BB78;
+      --warning: #F59E0B;
+      --danger: #E53E3E;
+    }
+
+    /* 头部导航 */
+    .header { background: var(--primary); color: white; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.15); position: sticky; top: 0; z-index: 100; }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .header-logo { font-size: 24px; }
+    .header-title { font-size: 18px; font-weight: 600; }
+    .header-right { display: flex; gap: 12px; align-items: center; }
+    .header-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+    .header-btn:hover { background: rgba(255,255,255,0.3); }
+    .alert-badge { background: var(--accent-red); padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+
+    /* 主容器 */
+    .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+
+    /* 大棚卡片网格 */
+    .greenhouse-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; margin-bottom: 24px; }
+    .gh-card { background: var(--bg-card); border-radius: 16px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); cursor: pointer; transition: all 0.3s; border: 2px solid transparent; position: relative; overflow: hidden; }
+    .gh-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); border-color: var(--primary-light); }
+    .gh-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+    .gh-card-name { font-size: 18px; font-weight: 600; color: var(--text); }
+    .gh-card-crop { font-size: 13px; color: var(--text-light); background: var(--bg); padding: 4px 10px; border-radius: 20px; }
+    .gh-card-status { display: flex; align-items: center; gap: 6px; font-size: 14px; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .status-normal { background: var(--success); }
+    .status-warning { background: var(--warning); }
+    .status-danger { background: var(--danger); }
+
+    /* 指标网格 */
+    .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+    .metric-item { text-align: center; padding: 12px 8px; background: var(--bg); border-radius: 10px; }
+    .metric-icon { font-size: 20px; margin-bottom: 4px; }
+    .metric-value { font-size: 20px; font-weight: 700; color: var(--text); }
+    .metric-label { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+    .metric-item.warning .metric-value { color: var(--warning); }
+    .metric-item.danger .metric-value { color: var(--danger); }
+
+    /* 快捷操作 */
+    .quick-actions { display: flex; gap: 8px; }
+    .action-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .action-btn.primary { background: var(--primary); color: white; }
+    .action-btn.primary:hover { background: var(--primary-dark); }
+    .action-btn.secondary { background: var(--bg); color: var(--text); }
+    .action-btn.secondary:hover { background: var(--border); }
+
+    /* 详情页面 */
+    .detail-page { display: none; }
+    .detail-page.active { display: block; }
+    .back-btn { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: var(--bg-card); border: none; border-radius: 8px; cursor: pointer; font-size: 14px; color: var(--text); margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .back-btn:hover { background: var(--border); }
+
+    .detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .detail-title { font-size: 24px; font-weight: 600; }
+    .detail-subtitle { font-size: 14px; color: var(--text-light); margin-top: 4px; }
+
+    /* 大指标卡片 */
+    .big-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .big-metric { background: var(--bg-card); border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .big-metric-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .big-metric-label { font-size: 14px; color: var(--text-light); }
+    .big-metric-icon { font-size: 28px; }
+    .big-metric-value { font-size: 36px; font-weight: 700; color: var(--text); }
+    .big-metric-unit { font-size: 16px; color: var(--text-light); font-weight: normal; margin-left: 4px; }
+    .big-metric-status { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-top: 8px; }
+    .big-metric-status.normal { background: #E8F5E9; color: var(--primary); }
+    .big-metric-status.warning { background: #FEF3C7; color: var(--warning); }
+    .big-metric-status.danger { background: #FEE2E2; color: var(--danger); }
+
+    /* 内容网格 */
+    .content-grid { display: grid; grid-template-columns: 1fr 400px; gap: 20px; }
+    .chart-card { background: var(--bg-card); border-radius: 16px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .card-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .chart-container { height: 280px; }
+    .chart-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .chart-tab { padding: 6px 14px; border: none; border-radius: 6px; background: var(--bg); cursor: pointer; font-size: 13px; color: var(--text-light); transition: all 0.2s; }
+    .chart-tab.active { background: var(--primary); color: white; }
+
+    /* 侧边栏 */
+    .sidebar { display: flex; flex-direction: column; gap: 20px; }
+    .alert-list { background: var(--bg-card); border-radius: 16px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .alert-item { padding: 14px; border-radius: 10px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 12px; }
+    .alert-item.urgent { background: #FEE2E2; }
+    .alert-item.warning { background: #FEF3C7; }
+    .alert-item.info { background: #E8F5E9; }
+    .alert-icon { font-size: 24px; }
+    .alert-content { flex: 1; }
+    .alert-title { font-size: 14px; font-weight: 600; color: var(--text); }
+    .alert-desc { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+    .alert-time { font-size: 11px; color: var(--text-light); margin-top: 4px; }
+    .alert-empty { text-align: center; padding: 30px; color: var(--text-light); }
+
+    /* 控制面板 */
+    .control-panel { background: var(--bg-card); border-radius: 16px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .control-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .control-item { padding: 16px; background: var(--bg); border-radius: 12px; display: flex; align-items: center; gap: 12px; }
+    .control-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+    .control-icon.fan { background: #DBEAFE; }
+    .control-icon.curtain { background: #FEF3C7; }
+    .control-icon.light { background: #FEF9C3; }
+    .control-icon.irrigation { background: #D1FAE5; }
+    .control-icon.co2 { background: #E0E7FF; }
+    .control-info { flex: 1; }
+    .control-name { font-size: 14px; font-weight: 600; }
+    .control-status { font-size: 12px; color: var(--text-light); }
+    .control-toggle { width: 48px; height: 28px; border-radius: 14px; background: var(--border); position: relative; cursor: pointer; transition: all 0.2s; }
+    .control-toggle.on { background: var(--primary); }
+    .control-toggle::after { content: ''; position: absolute; width: 22px; height: 22px; border-radius: 50%; background: white; top: 3px; left: 3px; transition: all 0.2s; }
+    .control-toggle.on::after { left: 23px; }
+
+    /* AI建议 */
+    .suggestion-card { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); border-radius: 16px; padding: 24px; color: white; margin-bottom: 20px; }
+    .suggestion-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .suggestion-icon { width: 36px; height: 36px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .suggestion-title { font-size: 16px; font-weight: 600; }
+    .suggestion-text { font-size: 15px; line-height: 1.6; margin-bottom: 16px; opacity: 0.95; }
+    .suggestion-actions { display: flex; gap: 10px; }
+    .suggestion-btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 500; }
+    .suggestion-btn.accept { background: white; color: var(--primary); }
+    .suggestion-btn.reject { background: rgba(255,255,255,0.2); color: white; }
+    .confidence { display: inline-block; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; font-size: 12px; margin-left: 10px; }
+
+    /* 添加大棚弹窗 */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 200; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: white; border-radius: 20px; padding: 28px; width: 480px; max-width: 90%; }
+    .modal-header { font-size: 20px; font-weight: 600; margin-bottom: 20px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 14px; color: var(--text-light); margin-bottom: 6px; }
+    .form-group input, .form-group select { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; font-size: 14px; transition: border-color 0.2s; }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+    .modal-btn { padding: 12px 24px; border: none; border-radius: 10px; font-size: 14px; cursor: pointer; }
+    .modal-btn.primary { background: var(--primary); color: white; }
+    .modal-btn.secondary { background: var(--bg); color: var(--text); }
+
+    /* 响应式 */
+    @media (max-width: 1024px) {
+      .content-grid { grid-template-columns: 1fr; }
+      .big-metrics { grid-template-columns: repeat(2, 1fr); }
+      .metric-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .big-metrics { grid-template-columns: 1fr; }
+      .greenhouse-grid { grid-template-columns: 1fr; }
+    }
+
+    /* 加载状态 */
+    .loading { text-align: center; padding: 40px; color: var(--text-light); }
+    .skeleton { background: linear-gradient(90deg, var(--bg) 25%, var(--border) 50%, var(--bg) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  </style>
+</head>
+<body>
+  <!-- 头部 -->
+  <div class="header">
+    <div class="header-left">
+      <span class="header-logo"><i class="ri-team-line ri-lg"></i></span>
+      <span class="header-title">设施大棚智能管控</span>
+    </div>
+    <div class="header-right">
+      <button class="header-btn" onclick="showAddModal()">+ 添加大棚</button>
+      <i class="ri-refresh-line"></i> 刷新</button>
+    </div>
+  </div>
+
+  <!-- 列表页 -->
+  <div class="container list-page" id="listPage">
+    <div class="greenhouse-grid" id="greenhouseGrid">
+      <div class="loading">加载中...</div>
+    </div>
+  </div>
+
+  <!-- 详情页 -->
+  <div class="container detail-page" id="detailPage">
+    <button class="back-btn" onclick="showList()"><i class="ri-arrow-left-line"></i> 返回列表</button>
+
+    <div class="detail-header">
+      <div>
+        <div class="detail-title" id="detailName">番茄1号棚</div>
+        <div class="detail-subtitle" id="detailInfo">番茄 · 5亩 · 山东寿光</div>
+      </div>
+      <button class="action-btn primary" onclick="refreshDetail()"><i class="ri-refresh-line"></i> 刷新数据</button>
+    </div>
+
+    <!-- AI建议 -->
+    <div class="suggestion-card" id="suggestionCard">
+      <div class="suggestion-header">
+        <div class="suggestion-icon"><i class="ri-lightbulb-line ri-xl"></i></div>
+        <div class="suggestion-title">智能建议 <span class="confidence" id="confidence">置信度 85%</span></div>
+      </div>
+      <div class="suggestion-text" id="suggestionText">当前环境正常，建议保持当前状态。</div>
+      <div class="suggestion-actions">
+        <button class="suggestion-btn accept" onclick="acceptSuggestion()"><i class="ri-check-line"></i> 采纳建议</button>
+        <button class="suggestion-btn reject" onclick="rejectSuggestion()"><i class="ri-close-line"></i> 忽略</button>
+      </div>
+    </div>
+
+    <!-- 大指标 -->
+    <div class="big-metrics">
+      <div class="big-metric">
+        <div class="big-metric-header">
+          <span class="big-metric-label"><i class="ri-temp-hot-line"></i> 温度</span>
+          <span class="big-metric-icon"><i class="ri-temp-hot-line ri-xl"></i></span>
+        </div>
+        <div class="big-metric-value" id="tempValue">25.3<span class="big-metric-unit">℃</span></div>
+        <div class="big-metric-status normal" id="tempStatus">正常</div>
+      </div>
+      <div class="big-metric">
+        <div class="big-metric-header">
+          <span class="big-metric-label"><i class="ri-water-percent-line"></i> 湿度</span>
+          <span class="big-metric-icon"><i class="ri-water-percent-line ri-xl"></i></span>
+        </div>
+        <div class="big-metric-value" id="humidityValue">72<span class="big-metric-unit">%</span></div>
+        <div class="big-metric-status warning" id="humidityStatus">偏高</div>
+      </div>
+      <div class="big-metric">
+        <div class="big-metric-header">
+          <span class="big-metric-label"><i class="ri-sun-line"></i> 光照</span>
+          <span class="big-metric-icon"><i class="ri-sun-line ri-xl"></i></span>
+        </div>
+        <div class="big-metric-value" id="lightValue">28.5<span class="big-metric-unit">klux</span></div>
+        <div class="big-metric-status normal" id="lightStatus">正常</div>
+      </div>
+      <div class="big-metric">
+        <div class="big-metric-header">
+          <span class="big-metric-label"><i class="ri-windy-line"></i> CO2</span>
+          <span class="big-metric-icon"><i class="ri-windy-line ri-xl"></i></span>
+        </div>
+        <div class="big-metric-value" id="co2Value">650<span class="big-metric-unit">ppm</span></div>
+        <div class="big-metric-status normal" id="co2Status">正常</div>
+      </div>
+    </div>
+
+    <!-- 内容网格 -->
+    <div class="content-grid">
+      <!-- 图表 -->
+      <div class="chart-card">
+        <div class="card-title"><i class="ri-line-chart-line"></i> 历史趋势</div>
+        <div class="chart-tabs">
+          <button class="chart-tab active" onclick="switchChart('temp')">温度</button>
+          <button class="chart-tab" onclick="switchChart('humidity')">湿度</button>
+          <button class="chart-tab" onclick="switchChart('light')">光照</button>
+          <button class="chart-tab" onclick="switchChart('co2')">CO2</button>
+        </div>
+        <div class="chart-container" id="historyChart"></div>
+      </div>
+
+      <!-- 侧边栏 -->
+      <div class="sidebar">
+        <!-- 告警 -->
+        <div class="alert-list">
+          <div class="card-title"><i class="ri-alarm-warning-line"></i> 实时告警</div>
+          <div id="alertList">
+            <div class="alert-empty">暂无告警</div>
+          </div>
+        </div>
+
+        <!-- 控制 -->
+        <div class="control-panel">
+          <div class="card-title"><i class="ri-settings-3-line"></i> 设备控制</div>
+          <div class="control-grid">
+            <div class="control-item">
+              <div class="control-icon fan"><i class="ri-tornado-line"></i></div>
+              <div class="control-info">
+                <div class="control-name">风机</div>
+                <div class="control-status">状态: 关闭</div>
+              </div>
+              <div class="control-toggle" onclick="toggleControl(this, 'fan')"></div>
+            </div>
+            <div class="control-item">
+              <div class="control-icon curtain"><i class="ri-sun-cloudy-line"></i></div>
+              <div class="control-info">
+                <div class="control-name">遮阳帘</div>
+                <div class="control-status">开度: 30%</div>
+              </div>
+              <div class="control-toggle on" onclick="toggleControl(this, 'curtain')"></div>
+            </div>
+            <div class="control-item">
+              <div class="control-icon light"><i class="ri-lightbulb-line"></i></div>
+              <div class="control-info">
+                <div class="control-name">补光灯</div>
+                <div class="control-status">状态: 关闭</div>
+              </div>
+              <div class="control-toggle" onclick="toggleControl(this, 'light')"></div>
+            </div>
+            <div class="control-item">
+              <div class="control-icon irrigation"><i class="ri-drop-line"></i></div>
+              <div class="control-info">
+                <div class="control-name">滴灌</div>
+                <div class="control-status">状态: 关闭</div>
+              </div>
+              <div class="control-toggle" onclick="toggleControl(this, 'irrigation')"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 添加大棚弹窗 -->
+  <div class="modal-overlay" id="addModal">
+    <div class="modal">
+      <div class="modal-header">添加新大棚</div>
+      <div class="form-group">
+        <label>大棚名称</label>
+        <input type="text" id="ghName" placeholder="例如：番茄1号棚">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>作物类型</label>
+          <select id="ghCrop">
+            <option value="tomato">番茄</option>
+            <option value="strawberry">草莓</option>
+            <option value="mushroom">菌菇</option>
+            <option value="flower">花卉</option>
+            <option value="vegetable">蔬菜</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>面积（亩）</label>
+          <input type="number" id="ghArea" placeholder="5.0" step="0.1">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>位置</label>
+        <input type="text" id="ghLocation" placeholder="例如：山东寿光">
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="hideAddModal()">取消</button>
+        <button class="modal-btn primary" onclick="createGreenhouse()">创建</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:8000/api/v1';
+    let currentGhId = null;
+    let currentGhData = null;
+    let historyChart = null;
+    let currentChartType = 'temp';
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      loadGreenhouses();
+    });
+
+    // 加载大棚列表
+    async function loadGreenhouses() {
+      const grid = document.getElementById('greenhouseGrid');
+      try {
+        const res = await fetch(`${API_BASE}/greenhouses`);
+        const ghs = await res.json();
+        if (ghs.length === 0) {
+          grid.innerHTML = '<div style="text-align:center;padding:60px;color:#666;">暂无大棚<br><button class="action-btn primary" onclick="showAddModal()" style="margin-top:20px;">+ 添加第一个大棚</button></div>';
+          return;
+        }
+        grid.innerHTML = ghs.map(gh => createGhCard(gh)).join('');
+      } catch (err) {
+        grid.innerHTML = '<div class="error">加载失败 <button onclick="loadGreenhouses()">重试</button></div>';
+      }
+    }
+
+    // 创建大棚卡片
+    function createGhCard(gh) {
+      return `
+        <div class="gh-card" onclick="enterDetail('${gh.id}')">
+          <div class="gh-card-header">
+            <div>
+              <div class="gh-card-name">${gh.name}</div>
+              <div class="gh-card-crop">${getCropName(gh.crop_type)} · ${gh.area}亩</div>
+            </div>
+            <div class="gh-card-status">
+              <span class="status-dot status-normal"></span>
+              <span>正常</span>
+            </div>
+          </div>
+          <div class="metric-grid">
+            <div class="metric-item">
+              <div class="metric-icon"><i class="ri-temp-hot-line"></i></div>
+              <div class="metric-value">--</div>
+              <div class="metric-label">温度</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-icon"><i class="ri-water-percent-line"></i></div>
+              <div class="metric-value">--</div>
+              <div class="metric-label">湿度</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-icon"><i class="ri-sun-line"></i></div>
+              <div class="metric-value">--</div>
+              <div class="metric-label">光照</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-icon"><i class="ri-windy-line"></i></div>
+              <div class="metric-value">--</div>
+              <div class="metric-label">CO2</div>
+            </div>
+          </div>
+          <div class="quick-actions">
+            <button class="action-btn primary" onclick="event.stopPropagation(); enterDetail('${gh.id}')">查看详情</button>
+            <button class="action-btn secondary" onclick="event.stopPropagation(); refreshCard('${gh.id}')">刷新</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // 进入详情页
+    async function enterDetail(ghId) {
+      currentGhId = ghId;
+      document.getElementById('listPage').style.display = 'none';
+      document.getElementById('detailPage').classList.add('active');
+      await refreshDetail();
+    }
+
+    // 刷新详情
+    async function refreshDetail() {
+      if (!currentGhId) return;
+      try {
+        // 获取大棚信息
+        const ghRes = await fetch(`${API_BASE}/greenhouses/${currentGhId}`);
+        currentGhData = await ghRes.json();
+        document.getElementById('detailName').textContent = currentGhData.name;
+        document.getElementById('detailInfo').textContent = `${getCropName(currentGhData.crop_type)} · ${currentGhData.area}亩 · ${currentGhData.location}`;
+
+        // 获取环境数据
+        const envRes = await fetch(`${API_BASE}/greenhouses/${currentGhId}/env/current`);
+        const env = await envRes.json();
+        updateMetrics(env);
+
+        // 获取AI分析
+        const analyzeRes = await fetch(`${API_BASE}/greenhouses/${currentGhId}/analyze`, { method: 'POST' });
+        const analyze = await analyzeRes.json();
+        updateSuggestion(analyze);
+        updateAlerts(analyze.alerts);
+
+        // 初始化图表
+        initChart();
+      } catch (err) {
+        console.error('Refresh failed:', err);
+      }
+    }
+
+    // 更新指标显示
+    function updateMetrics(env) {
+      const optimal = getOptimal(currentGhData?.crop_type || 'tomato');
+
+      // 温度
+      const tempEl = document.getElementById('tempValue');
+      const tempStatus = document.getElementById('tempStatus');
+      tempEl.innerHTML = env.temperature.toFixed(1) + '<span class="big-metric-unit">℃</span>';
+      const tempClass = getStatusClass(env.temperature, optimal.temp_min, optimal.temp_max);
+      tempStatus.className = 'big-metric-status ' + tempClass;
+      tempStatus.textContent = getStatusText(env.temperature, optimal.temp_min, optimal.temp_max);
+
+      // 湿度
+      const humidityEl = document.getElementById('humidityValue');
+      const humidityStatus = document.getElementById('humidityStatus');
+      humidityEl.innerHTML = env.humidity.toFixed(0) + '<span class="big-metric-unit">%</span>';
+      const humidityClass = getStatusClass(env.humidity, optimal.humidity_min, optimal.humidity_max);
+      humidityStatus.className = 'big-metric-status ' + humidityClass;
+      humidityStatus.textContent = getStatusText(env.humidity, optimal.humidity_min, optimal.humidity_max);
+
+      // 光照
+      const lightEl = document.getElementById('lightValue');
+      const lightStatus = document.getElementById('lightStatus');
+      const lightKlux = (env.light / 1000).toFixed(1);
+      lightEl.innerHTML = lightKlux + '<span class="big-metric-unit">klux</span>';
+      const lightClass = getStatusClass(env.light, optimal.light_min, optimal.light_max);
+      lightStatus.className = 'big-metric-status ' + lightClass;
+      lightStatus.textContent = getStatusText(env.light, optimal.light_min, optimal.light_max);
+
+      // CO2
+      const co2El = document.getElementById('co2Value');
+      const co2Status = document.getElementById('co2Status');
+      co2El.innerHTML = env.co2 + '<span class="big-metric-unit">ppm</span>';
+      const co2Class = getStatusClass(env.co2, optimal.co2_min, optimal.co2_max);
+      co2Status.className = 'big-metric-status ' + co2Class;
+      co2Status.textContent = getStatusText(env.co2, optimal.co2_min, optimal.co2_max);
+    }
+
+    // 更新建议
+    function updateSuggestion(data) {
+      if (data.suggestion) {
+        document.getElementById('suggestionText').textContent = data.suggestion.suggestion;
+        document.getElementById('confidence').textContent = `置信度 ${(data.suggestion.confidence * 100).toFixed(0)}%`;
+      }
+    }
+
+    // 更新告警
+    function updateAlerts(alerts) {
+      const alertList = document.getElementById('alertList');
+      if (!alerts || alerts.length === 0) {
+        alertList.innerHTML = '<div class="alert-empty">暂无告警</div>';
+        return;
+      }
+      alertList.innerHTML = alerts.map(a => `
+        <div class="alert-item ${a.level}">
+          <div class="alert-icon">${getAlertIcon(a.level)}</div>
+          <div class="alert-content">
+            <div class="alert-title">${a.message}</div>
+            <div class="alert-desc">当前值: ${a.actual_value.toFixed(1)} | 阈值: ${a.threshold_value}</div>
+            <div class="alert-time">${a.alert_type}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // 初始化图表
+    function initChart() {
+      const chartDom = document.getElementById('historyChart');
+      if (!historyChart) {
+        historyChart = echarts.init(chartDom);
+      }
+      updateChart();
+    }
+
+    // 更新图表
+    async function updateChart() {
+      if (!currentGhId || !historyChart) return;
+
+      // 模拟历史数据
+      const now = new Date();
+      const times = [];
+      const tempData = [];
+      const humidityData = [];
+      const lightData = [];
+      const co2Data = [];
+
+      for (let i = 23; i >= 0; i--) {
+        const t = new Date(now - i * 3600000);
+        times.push(t.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }));
+        tempData.push((22 + Math.random() * 6).toFixed(1));
+        humidityData.push((60 + Math.random() * 25).toFixed(0));
+        lightData.push((20 + Math.random() * 30) * 1000);
+        co2Data.push((500 + Math.random() * 300).toFixed(0));
+      }
+
+      const chartConfig = {
+        temp: { name: '温度 (℃)', color: '#E53E3E', data: tempData },
+        humidity: { name: '湿度 (%)', color: '#3182CE', data: humidityData },
+        light: { name: '光照 (lux)', color: '#F59E0B', data: lightData },
+        co2: { name: 'CO2 (ppm)', color: '#48BB78', data: co2Data }
+      };
+
+      const config = chartConfig[currentChartType];
+      historyChart.setOption({
+        tooltip: { trigger: 'axis' },
+        grid: { left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true },
+        xAxis: { type: 'category', data: times, axisLine: { lineStyle: { color: '#E2E8E0' } }, axisLabel: { color: '#6B7B6B' } },
+        yAxis: { type: 'value', axisLine: { show: false }, splitLine: { lineStyle: { color: '#F0F2F0' } }, axisLabel: { color: '#6B7B6B' } },
+        series: [{
+          name: config.name, type: 'line', smooth: true,
+          data: config.data,
+          itemStyle: { color: config.color },
+          areaStyle: { color: config.color, opacity: 0.1 }
+        }],
+        animation: true
+      });
+    }
+
+    // 切换图表
+    function switchChart(type) {
+      currentChartType = type;
+      document.querySelectorAll('.chart-tab').forEach(tab => tab.classList.remove('active'));
+      event.target.classList.add('active');
+      updateChart();
+    }
+
+    // 返回列表
+    function showList() {
+      document.getElementById('detailPage').classList.remove('active');
+      document.getElementById('listPage').style.display = 'block';
+      currentGhId = null;
+    }
+
+    // 刷新卡片
+    async function refreshCard(ghId) {
+      // 实际项目中这里更新单个卡片数据
+      console.log('Refreshing card:', ghId);
+    }
+
+    // 刷新全部
+    function refreshAll() {
+      if (currentGhId) {
+        refreshDetail();
+      } else {
+        loadGreenhouses();
+      }
+    }
+
+    // 显示添加弹窗
+    function showAddModal() {
+      document.getElementById('addModal').classList.add('active');
+    }
+
+    // 隐藏添加弹窗
+    function hideAddModal() {
+      document.getElementById('addModal').classList.remove('active');
+    }
+
+    // 创建大棚
+    async function createGreenhouse() {
+      const name = document.getElementById('ghName').value;
+      const crop = document.getElementById('ghCrop').value;
+      const area = parseFloat(document.getElementById('ghArea').value);
+      const location = document.getElementById('ghLocation').value;
+
+      if (!name || !area) {
+        alert('请填写完整信息');
+        return;
+      }
+
+      try {
+        await fetch(`${API_BASE}/greenhouses`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, crop_type: crop, area, location })
+        });
+        hideAddModal();
+        loadGreenhouses();
+      } catch (err) {
+        alert('创建失败');
+      }
+    }
+
+    // 采纳建议
+    function acceptSuggestion() {
+      alert('建议已采纳');
+    }
+
+    // 忽略建议
+    function rejectSuggestion() {
+      alert('已忽略');
+    }
+
+    // 设备控制
+    function toggleControl(el, type) {
+      el.classList.toggle('on');
+      const status = el.classList.contains('on') ? '开启' : '关闭';
+      console.log(`${type} ${status}`);
+    }
+
+    // 辅助函数
+    function getCropName(type) {
+      const names = { tomato: '番茄', strawberry: '草莓', mushroom: '菌菇', flower: '花卉', vegetable: '蔬菜' };
+      return names[type] || type;
+    }
+
+    function getOptimal(crop) {
+      const opt = {
+        tomato: { temp_min: 18, temp_max: 28, humidity_min: 50, humidity_max: 80, light_min: 20000, light_max: 50000, co2_min: 400, co2_max: 1000 },
+        strawberry: { temp_min: 15, temp_max: 25, humidity_min: 60, humidity_max: 85, light_min: 15000, light_max: 40000, co2_min: 350, co2_max: 800 },
+        mushroom: { temp_min: 15, temp_max: 24, humidity_min: 75, humidity_max: 95, light_min: 0, light_max: 5000, co2_min: 800, co2_max: 2000 },
+        flower: { temp_min: 18, temp_max: 30, humidity_min: 50, humidity_max: 80, light_min: 25000, light_max: 60000, co2_min: 350, co2_max: 800 },
+        vegetable: { temp_min: 18, temp_max: 30, humidity_min: 60, humidity_max: 85, light_min: 20000, light_max: 50000, co2_min: 400, co2_max: 1000 }
+      };
+      return opt[crop] || opt.tomato;
+    }
+
+    function getStatusClass(value, min, max) {
+      if (value < min || value > max) return 'danger';
+      if (value < min + (max - min) * 0.15 || value > max - (max - min) * 0.15) return 'warning';
+      return 'normal';
+    }
+
+    function getStatusText(value, min, max) {
+      if (value < min) return '偏低';
+      if (value > max) return '偏高';
+      return '正常';
+    }
+
+    function getAlertIcon(level) {
+      const icons = { urgent: 'ri-error-warning-line', warning: 'ri-alert-line', info: 'ri-information-line' };
+      return `<i class="ri ${icons[level] || 'ri-notification-3-line'} ri-lg"></i>`;
+    }
+  </script>
+</body>
+</html>
