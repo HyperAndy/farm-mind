@@ -76,7 +76,8 @@ class GreenhouseAgent:
                 level=level,
                 threshold_value=self.optimal["temp_max"],
                 actual_value=env.temperature,
-                message=f"温度过高：{env.temperature}℃（建议保持在{self.optimal['temp_max']}℃以下）"
+                message=f"温度过高：{env.temperature}℃（建议保持在{self.optimal['temp_max']}℃以下）",
+                created_at=datetime.now()
             ))
             analysis_parts.append(f"温度{env.temperature}℃偏高")
         elif env.temperature < self.optimal["temp_min"]:
@@ -88,12 +89,11 @@ class GreenhouseAgent:
                 level=level,
                 threshold_value=self.optimal["temp_min"],
                 actual_value=env.temperature,
-                message=f"温度过低：{env.temperature}℃（建议保持在{self.optimal['temp_min']}℃以上）"
+                message=f"温度过低：{env.temperature}℃（建议保持在{self.optimal['temp_min']}℃以上）",
+                created_at=datetime.now()
             ))
             analysis_parts.append(f"温度{env.temperature}℃偏低")
-
-        # 湿度分析
-        if env.humidity > self.optimal["humidity_max"]:
+        elif env.humidity > self.optimal["humidity_max"]:
             alerts.append(Alert(
                 id=str(uuid.uuid4()),
                 greenhouse_id=self.greenhouse_id,
@@ -101,7 +101,8 @@ class GreenhouseAgent:
                 level="warning",
                 threshold_value=self.optimal["humidity_max"],
                 actual_value=env.humidity,
-                message=f"湿度过高：{env.humidity}%（可能导致病害）"
+                message=f"湿度过高：{env.humidity}%（可能导致病害）",
+                created_at=datetime.now()
             ))
             analysis_parts.append(f"湿度{env.humidity}%偏高")
         elif env.humidity < self.optimal["humidity_min"]:
@@ -112,10 +113,10 @@ class GreenhouseAgent:
                 level="warning",
                 threshold_value=self.optimal["humidity_min"],
                 actual_value=env.humidity,
-                message=f"湿度过低：{env.humidity}%（需注意补水）"
+                message=f"湿度过低：{env.humidity}%（需注意补水）",
+                created_at=datetime.now()
             ))
             analysis_parts.append(f"湿度{env.humidity}%偏低")
-
         # 光照分析
         if env.light > self.optimal["light_max"]:
             alerts.append(Alert(
@@ -125,7 +126,8 @@ class GreenhouseAgent:
                 level="info",
                 threshold_value=self.optimal["light_max"],
                 actual_value=env.light,
-                message=f"光照过强：{env.light}lux（需遮阳）"
+                message=f"光照过强：{env.light}lux（需遮阳）",
+                created_at=datetime.now()
             ))
             analysis_parts.append(f"光照{env.light}lux过强")
         elif env.light < self.optimal["light_min"]:
@@ -136,7 +138,8 @@ class GreenhouseAgent:
                 level="warning",
                 threshold_value=self.optimal["light_min"],
                 actual_value=env.light,
-                message=f"光照不足：{env.light}lux（需补光）"
+                message=f"光照不足：{env.light}lux（需补光）",
+                created_at=datetime.now()
             ))
             analysis_parts.append(f"光照{env.light}lux不足")
 
@@ -149,7 +152,8 @@ class GreenhouseAgent:
                 level="info",
                 threshold_value=self.optimal["co2_min"],
                 actual_value=env.co2,
-                message=f"CO2不足：{env.co2}ppm（需补充）"
+                message=f"CO2不足：{env.co2}ppm（需补充）",
+                created_at=datetime.now()
             ))
 
         analysis = "当前环境：" + "，".join(analysis_parts) if analysis_parts else "当前环境正常"
