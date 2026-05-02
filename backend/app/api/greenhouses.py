@@ -134,43 +134,45 @@ async def analyze_environment(greenhouse_id: str):
         raise HTTPException(status_code=404, detail="大棚不存在")
 
     gh = greenhouses_db[greenhouse_id]
-    optimal = CROP_OPTIMAL.get(gh.crop_type, CROP_OPTIMAL[CropType.TOMATO])
+    try:
+        agent = get_agent(greenhouse_id, gh.crop_type)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Agent初始化失败: {str(e)}")
 
-    # 直接生成模拟数据（避免调用其他endpoint）
-    import random
-    env = EnvironmentData(
-        temperature=optimal["temp_min"] + random.uniform(-3, 8),
-        humidity=optimal["humidity_min"] + random.uniform(5, 40),
-        light=optimal["light_min"] + random.randint(-5000, 15000),
-        co2=optimal["co2_min"] + random.randint(-100, 300),
-        soil_ec=optimal.get("soil_ec_min", 1.5) + random.uniform(-0.3, 0.5),
-        soil_pH=optimal.get("soil_pH_min", 6.0) + random.uniform(-0.5, 0.8),
-        soil_temp=optimal["temp_min"] + random.uniform(-2, 5),
-        soil_moisture=40 + random.randint(-15, 30)
-    )
+    try:
+        # 直接生成模拟数据
+        import random
+        optimal = CROP_OPTIMAL.get(gh.crop_type, CROP_OPTIMAL[CropType.TOMATO])
+        env = EnvironmentData(
+            temperature=optimal["temp_min"] + random.uniform(-3, 8),
+            humidity=optimal["humidity_min"] + random.uniform(5, 40),
+            light=optimal["light_min"] + random.randint(-5000, 15000),
+            co2=optimal["co2_min"] + random.randint(-100, 300),
+            soil_ec=optimal.get("soil_ec_min", 1.5) + random.uniform(-0.3, 0.5),
+            soil_pH=optimal.get("soil_pH_min", 6.0) + random.uniform(-0.5, 0.8),
+            soil_temp=optimal["temp_min"] + random.uniform(-2, 5),
+            soil_moisture=40 + random.randint(-15, 30)
+        )
 
-    # 天气预报
-    import random as _r
-    weather_types = ["sunny", "cloudy", "rainy"]
-    weather = WeatherForecast(
-        timestamp=datetime.now() + timedelta(days=1),
-        temp_high=28 + _r.randint(-3, 8),
-        temp_low=18 + _r.randint(-2, 5),
-        humidity=60 + _r.randint(-15, 20),
-        weather=_r.choice(weather_types),
-        precipitation=_r.choice([0, 0, 0, 5, 10, 20])
-    )
+        weather = WeatherForecast(
+            timestamp=datetime.now() + timedelta(days=1),
+            temp_high=28 + random.randint(-3, 8),
+            temp_low=18 + random.randint(-2, 5),
+            humidity=60 + random.randint(-15, 20),
+            weather=random.choice(["sunny", "cloudy", "rainy"]),
+            precipitation=random.choice([0, 0, 0, 5, 10, 20])
+        )
 
-    # 使用Agent分析
-    agent = get_agent(greenhouse_id, gh.crop_type)
-    alerts, analysis = agent.analyze_environment(env, weather)
-    suggestion = agent.generate_control_suggestion(env, weather, analysis)
+        alerts, analysis = agent.analyze_environment(env, weather)
+        suggestion = agent.generate_control_suggestion(env, weather, analysis)
 
-    return {
-        "analysis": analysis,
-        "alerts": [alert.model_dump() for alert in alerts],
-        "suggestion": suggestion.model_dump()
-    }
+        return {
+            "analysis": analysis,
+            "alerts": [alert.model_dump() for alert in alerts],
+            "suggestion": suggestion.model_dump()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"分析失败: {str(e)}")
 
 
 @router.get("/greenhouses/{greenhouse_id}/suggestions")
